@@ -40,6 +40,7 @@ public class SocketProperties {
      * -1 is unlimited
      * 0 is disabled
      */
+    //
     protected int processorCache = 500;
 
     /**
@@ -68,12 +69,14 @@ public class SocketProperties {
      * Socket receive buffer size in bytes (SO_RCVBUF).
      * JVM default used if not set.
      */
+    //SO_RCVBUF
     protected Integer rxBufSize = null;
 
     /**
      * Socket send buffer size in bytes (SO_SNDBUF).
      * JVM default used if not set.
      */
+    //SO_SNDBUF
     protected Integer txBufSize = null;
 
     /**
@@ -168,6 +171,7 @@ public class SocketProperties {
      * The minimum frequency of the timeout interval to avoid excess load from
      * the poller during high traffic
      */
+    //最小的超时时间，防止Poller线程负载过高
     protected long timeoutInterval = 1000;
 
     /**

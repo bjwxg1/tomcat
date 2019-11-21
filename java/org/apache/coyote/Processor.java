@@ -27,6 +27,7 @@ import org.apache.tomcat.util.net.SocketWrapperBase;
 /**
  * Common interface for processors of all protocols.
  */
+//协议处理的通用接口
 public interface Processor {
 
     /**
@@ -61,6 +62,7 @@ public interface Processor {
      * @return {@code true} if the Processor is currently processing an upgrade
      *         request, otherwise {@code false}
      */
+    //是否在进行upgrade
     boolean isUpgrade();
     boolean isAsync();
 
@@ -77,6 +79,7 @@ public interface Processor {
      *            expired. If negative, the timeout will always be treated as ifq
      *            it has expired.
      */
+    //处理异步超时
     void timeoutAsync(long now);
 
     /**

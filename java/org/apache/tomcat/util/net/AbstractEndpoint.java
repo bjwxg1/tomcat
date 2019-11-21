@@ -128,6 +128,7 @@ public abstract class AbstractEndpoint<S> {
         UNBOUND, BOUND_ON_INIT, BOUND_ON_START, SOCKET_CLOSED_ON_STOP
     }
 
+    //Acceptor线程
     public abstract static class Acceptor implements Runnable {
         public enum AcceptorState {
             NEW, RUNNING, PAUSED, ENDED
@@ -147,8 +148,9 @@ public abstract class AbstractEndpoint<S> {
         }
     }
 
-
+    //初始的error delay时间50ms
     private static final int INITIAL_ERROR_DELAY = 50;
+    //max error delay时间1600ms
     private static final int MAX_ERROR_DELAY = 1600;
 
 
@@ -162,23 +164,27 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Running state of the endpoint.
      */
+    //endpoint运行标识
     protected volatile boolean running = false;
 
 
     /**
      * Will be set to true whenever the endpoint is paused.
      */
+    //暂停标识
     protected volatile boolean paused = false;
 
     /**
      * Are we using an internal executor
      */
+    //
     protected volatile boolean internalExecutor = true;
 
 
     /**
      * counter for nr of connections handled by an endpoint
      */
+    //同时连接的Socket的限制器
     private volatile LimitLatch connectionLimitLatch = null;
 
     /**
@@ -192,11 +198,13 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Threads used to accept new connections and pass them to worker threads.
      */
+    //Acceptor线程组
     protected Acceptor[] acceptors;
 
     /**
      * Cache for SocketProcessor objects
      */
+    //SocketProcessorBase cache
     protected SynchronizedStack<SocketProcessorBase<S>> processorCache;
 
     private ObjectName oname = null;
@@ -407,6 +415,7 @@ public abstract class AbstractEndpoint<S> {
      * Time to wait for the internal executor (if used) to terminate when the
      * endpoint is stopped in milliseconds. Defaults to 5000 (5 seconds).
      */
+    //executor关闭超时时间
     private long executorTerminationTimeoutMillis = 5000;
 
     public long getExecutorTerminationTimeoutMillis() {
@@ -422,6 +431,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Acceptor thread count.
      */
+    //Acceptor thread 数量，默认为1
     protected int acceptorThreadCount = 1;
 
     public void setAcceptorThreadCount(int acceptorThreadCount) {
@@ -433,14 +443,16 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Priority of the acceptor threads.
      */
+    //Acceptor Thread的优先级
     protected int acceptorThreadPriority = Thread.NORM_PRIORITY;
     public void setAcceptorThreadPriority(int acceptorThreadPriority) {
         this.acceptorThreadPriority = acceptorThreadPriority;
     }
     public int getAcceptorThreadPriority() { return acceptorThreadPriority; }
 
-
+    //Endpoint的最大连接数。默认为1W
     private int maxConnections = 10000;
+    //设置最大连接数，并设置connectionLimitLatch
     public void setMaxConnections(int maxCon) {
         this.maxConnections = maxCon;
         LimitLatch latch = this.connectionLimitLatch;
@@ -483,6 +495,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * External Executor based thread pool.
      */
+    //Work线程池处理Socket连接的IO操作
     private Executor executor = null;
     public void setExecutor(Executor executor) {
         this.executor = executor;
@@ -494,6 +507,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Server socket port.
      */
+    //Server绑定的端口
     private int port;
     public int getPort() { return port; }
     public void setPort(int port ) { this.port=port; }
@@ -515,6 +529,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Address for the server socket.
      */
+    //ServerSocket地址
     private InetAddress address;
     public InetAddress getAddress() { return address; }
     public void setAddress(InetAddress address) { this.address = address; }
@@ -540,6 +555,7 @@ public abstract class AbstractEndpoint<S> {
      * should be used for server sockets. By default, this value
      * is 100.
      */
+    //Accept队列的大小，即操作系统的BackLog
     private int acceptCount = 100;
     public void setAcceptCount(int acceptCount) { if (acceptCount > 0) this.acceptCount = acceptCount; }
     public int getAcceptCount() { return acceptCount; }
@@ -631,6 +647,9 @@ public abstract class AbstractEndpoint<S> {
      */
     public abstract boolean isAlpnSupported();
 
+    /**
+     * Executor的核心线程数
+     */
     private int minSpareThreads = 10;
     public void setMinSpareThreads(int minSpareThreads) {
         this.minSpareThreads = minSpareThreads;
@@ -658,6 +677,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Maximum amount of worker threads.
      */
+    //Work线程池的最大线程数，
     private int maxThreads = 200;
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
@@ -893,6 +913,7 @@ public abstract class AbstractEndpoint<S> {
         internalExecutor = true;
         TaskQueue taskqueue = new TaskQueue();
         TaskThreadFactory tf = new TaskThreadFactory(getName() + "-exec-", daemon, getThreadPriority());
+        //创建executor
         executor = new ThreadPoolExecutor(getMinSpareThreads(), getMaxThreads(), 60, TimeUnit.SECONDS,taskqueue, tf);
         taskqueue.setParent( (ThreadPoolExecutor) executor);
     }
@@ -1069,6 +1090,7 @@ public abstract class AbstractEndpoint<S> {
             if (socketWrapper == null) {
                 return false;
             }
+            //获取Processor
             SocketProcessorBase<S> sc = processorCache.pop();
             if (sc == null) {
                 sc = createSocketProcessor(socketWrapper, event);
@@ -1186,7 +1208,9 @@ public abstract class AbstractEndpoint<S> {
     }
 
 
+    //启动EndPoint
     public final void start() throws Exception {
+        //判断绑定状态，如果未绑定进行绑定
         if (bindState == BindState.UNBOUND) {
             bind();
             bindState = BindState.BOUND_ON_START;
@@ -1277,9 +1301,14 @@ public abstract class AbstractEndpoint<S> {
     }
 
     protected void countUpOrAwaitConnection() throws InterruptedException {
-        if (maxConnections==-1) return;
+        if (maxConnections == -1) {
+            return;
+        }
         LimitLatch latch = connectionLimitLatch;
-        if (latch!=null) latch.countUpOrAwait();
+        if (latch != null) {
+            //参照LimitLatch
+            latch.countUpOrAwait();
+        }
     }
 
     protected long countDownConnection() {

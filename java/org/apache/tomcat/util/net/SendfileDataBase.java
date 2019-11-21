@@ -30,6 +30,7 @@ public abstract class SendfileDataBase {
      * The full path to the file that contains the data to be written to the
      * socket.
      */
+    //需要写入到Socket的文件
     public final String fileName;
 
     /**

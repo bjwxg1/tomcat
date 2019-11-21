@@ -33,17 +33,18 @@ import org.apache.tomcat.util.res.StringManager;
  *
  * @version 1.0
  */
+//包装SocketChannel
 public class NioChannel implements ByteChannel {
 
     protected static final StringManager sm = StringManager.getManager(NioChannel.class);
 
     protected static final ByteBuffer emptyBuf = ByteBuffer.allocate(0);
-
+    //包装的SocketChannel
     protected SocketChannel sc = null;
     protected SocketWrapperBase<NioChannel> socketWrapper = null;
-
+    //bufHandler
     protected final SocketBufferHandler bufHandler;
-
+    //SocketChannel对应的poller
     protected Poller poller;
 
     public NioChannel(SocketChannel channel, SocketBufferHandler bufHandler) {
@@ -108,7 +109,9 @@ public class NioChannel implements ByteChannel {
      * @throws IOException If closing the secure channel fails.
      */
     public void close(boolean force) throws IOException {
-        if (isOpen() || force ) close();
+        if (isOpen() || force) {
+            close();
+        }
     }
 
     /**
@@ -129,6 +132,7 @@ public class NioChannel implements ByteChannel {
      * @throws IOException If some other I/O error occurs
      */
     @Override
+    //将src中的ByteBuffer内容写入到socket
     public int write(ByteBuffer src) throws IOException {
         checkInterruptStatus();
         return sc.write(src);

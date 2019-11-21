@@ -81,14 +81,15 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
      * ProtocolHandler implementation (ProtocolHandler using NIO, requires NIO
      * Endpoint etc.).
      */
+    //和此ProtocolHandler绑定的endpoint
     private final AbstractEndpoint<S> endpoint;
 
 
     private Handler<S> handler;
 
 
-    private final Set<Processor> waitingProcessors =
-            Collections.newSetFromMap(new ConcurrentHashMap<Processor, Boolean>());
+    //等待中的Processor
+    private final Set<Processor> waitingProcessors = Collections.newSetFromMap(new ConcurrentHashMap<Processor, Boolean>());
 
 
     /**
@@ -680,6 +681,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
         private final AbstractProtocol<S> proto;
         private final RequestGroupInfo global = new RequestGroupInfo();
         private final AtomicLong registerCount = new AtomicLong(0);
+        //Socket和其对应的Processor映射
         private final Map<S,Processor> connections = new ConcurrentHashMap<>();
         private final RecycledProcessors recycledProcessors = new RecycledProcessors(this);
 
@@ -709,8 +711,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
         @Override
         public SocketState process(SocketWrapperBase<S> wrapper, SocketEvent status) {
             if (getLog().isDebugEnabled()) {
-                getLog().debug(sm.getString("abstractConnectionHandler.process",
-                        wrapper.getSocket(), status));
+                getLog().debug(sm.getString("abstractConnectionHandler.process", wrapper.getSocket(), status));
             }
             if (wrapper == null) {
                 // Nothing to do. Socket has been closed.
@@ -719,6 +720,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
 
             S socket = wrapper.getSocket();
 
+            //获取socket对应的处理器
             Processor processor = connections.get(socket);
             if (getLog().isDebugEnabled()) {
                 getLog().debug(sm.getString("abstractConnectionHandler.connectionsGet",
@@ -739,6 +741,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
 
             if (processor != null) {
                 // Make sure an async timeout doesn't fire
+                //将processor从WaitingProcessor
                 getProtocol().removeWaitingProcessor(processor);
             } else if (status == SocketEvent.DISCONNECT || status == SocketEvent.ERROR) {
                 // Nothing to do. Endpoint requested a close and there is no
@@ -749,16 +752,15 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             ContainerThreadMarker.set();
 
             try {
+                //如果Processor为为空，说明没有取到
                 if (processor == null) {
                     String negotiatedProtocol = wrapper.getNegotiatedProtocol();
                     // OpenSSL typically returns null whereas JSSE typically
                     // returns "" when no protocol is negotiated
                     if (negotiatedProtocol != null && negotiatedProtocol.length() > 0) {
-                        UpgradeProtocol upgradeProtocol =
-                                getProtocol().getNegotiatedProtocol(negotiatedProtocol);
+                        UpgradeProtocol upgradeProtocol = getProtocol().getNegotiatedProtocol(negotiatedProtocol);
                         if (upgradeProtocol != null) {
-                            processor = upgradeProtocol.getProcessor(
-                                    wrapper, getProtocol().getAdapter());
+                            processor = upgradeProtocol.getProcessor(wrapper, getProtocol().getAdapter());
                         } else if (negotiatedProtocol.equals("http/1.1")) {
                             // Explicitly negotiated the default protocol.
                             // Obtain a processor below.
@@ -795,18 +797,19 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                     }
                 }
                 if (processor == null) {
+                    //根据协议创建相应的Processor【】
                     processor = getProtocol().createProcessor();
                     register(processor);
                 }
 
-                processor.setSslSupport(
-                        wrapper.getSslSupport(getProtocol().getClientCertProvider()));
+                processor.setSslSupport(wrapper.getSslSupport(getProtocol().getClientCertProvider()));
 
                 // Associate the processor with the connection
                 connections.put(socket, processor);
 
                 SocketState state = SocketState.CLOSED;
                 do {
+                    //真正的进行处理
                     state = processor.process(wrapper, status);
 
                     if (state == SocketState.UPGRADING) {
@@ -1021,8 +1024,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 synchronized (this) {
                     try {
                         long count = registerCount.incrementAndGet();
-                        RequestInfo rp =
-                            processor.getRequest().getRequestProcessor();
+                        RequestInfo rp = processor.getRequest().getRequestProcessor();
                         rp.setGlobalProcessor(global);
                         ObjectName rpName = new ObjectName(
                                 getProtocol().getDomain() +
@@ -1085,6 +1087,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
         }
     }
 
+    //Processor缓存
     protected static class RecycledProcessors extends SynchronizedStack<Processor> {
 
         private final transient ConnectionHandler<?> handler;
@@ -1137,6 +1140,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
     /**
      * Async timeout thread
      */
+    //异步超时处理线程
     protected class AsyncTimeout implements Runnable {
 
         private volatile boolean asyncTimeoutRunning = true;
@@ -1157,6 +1161,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 }
                 long now = System.currentTimeMillis();
                 for (Processor processor : waitingProcessors) {
+                    //超时处理
                    processor.timeoutAsync(now);
                 }
 

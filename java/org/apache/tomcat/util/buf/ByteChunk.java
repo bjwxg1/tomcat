@@ -128,6 +128,7 @@ public final class ByteChunk extends AbstractChunk {
     private transient Charset charset;
 
     // byte[]
+    //字节数组
     private byte[] buff;
 
     // transient as serialization is primarily for values via, e.g. JMX

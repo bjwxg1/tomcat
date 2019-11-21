@@ -32,6 +32,7 @@ public class LimitLatch {
 
     private static final Log log = LogFactory.getLog(LimitLatch.class);
 
+    //内部同步器
     private class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 1L;
 
@@ -41,6 +42,7 @@ public class LimitLatch {
         @Override
         protected int tryAcquireShared(int ignored) {
             long newCount = count.incrementAndGet();
+            //如果released或者newCount》limit说明超限，count减1，返回-1标识获取失败
             if (!released && newCount > limit) {
                 // Limit exceeded
                 count.decrementAndGet();
@@ -58,7 +60,9 @@ public class LimitLatch {
     }
 
     private final Sync sync;
+    //计数器
     private final AtomicLong count;
+    //阈值
     private volatile long limit;
     private volatile boolean released = false;
 

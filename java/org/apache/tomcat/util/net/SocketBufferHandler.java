@@ -20,14 +20,21 @@ import java.nio.ByteBuffer;
 
 import org.apache.tomcat.util.buf.ByteBufferUtils;
 
+/**
+ * Socekt Buffer的处理类
+ */
 public class SocketBufferHandler {
 
+    //标记读缓冲区所处的模式
     private volatile boolean readBufferConfiguredForWrite = true;
+    //读缓冲区
     private volatile ByteBuffer readBuffer;
 
+    //标记写缓冲区所处的模式
     private volatile boolean writeBufferConfiguredForWrite = true;
+    //写缓冲区
     private volatile ByteBuffer writeBuffer;
-
+    //是否使用直接内存
     private final boolean direct;
 
     public SocketBufferHandler(int readBufferSize, int writeBufferSize,

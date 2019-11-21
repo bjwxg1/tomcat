@@ -187,8 +187,7 @@ public class StringManager {
     // STATIC SUPPORT METHODS
     // --------------------------------------------------------------
 
-    private static final Map<String, Map<Locale,StringManager>> managers =
-            new Hashtable<>();
+    private static final Map<String, Map<Locale,StringManager>> managers = new Hashtable<>();
 
 
     /**

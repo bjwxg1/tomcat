@@ -46,8 +46,7 @@ import org.apache.tomcat.util.res.StringManager;
 
 public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
 
-    protected static final StringManager sm =
-            StringManager.getManager(AbstractHttp11Protocol.class);
+    protected static final StringManager sm = StringManager.getManager(AbstractHttp11Protocol.class);
 
     private final CompressionConfig compressionConfig = new CompressionConfig();
 

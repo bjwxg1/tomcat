@@ -48,11 +48,15 @@ public class NioSelectorPool {
 
     protected NioBlockingSelector blockingSelector;
 
+    //共享的Selector
     protected volatile Selector SHARED_SELECTOR;
 
+    //最大的Selector个数
     protected int maxSelectors = 200;
+    //Selector 超时时间
     protected long sharedSelectorTimeout = 30000;
     protected int maxSpareSelectors = -1;
+    //打开标识
     protected boolean enabled = true;
     protected AtomicInteger active = new AtomicInteger(0);
     protected AtomicInteger spare = new AtomicInteger(0);

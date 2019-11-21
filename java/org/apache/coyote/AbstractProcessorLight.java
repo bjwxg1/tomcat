@@ -90,8 +90,7 @@ public abstract class AbstractProcessorLight implements Processor {
                 // dispatches to process.
                 dispatches = getIteratorAndClearDispatches();
             }
-        } while (state == SocketState.ASYNC_END ||
-                dispatches != null && state != SocketState.CLOSED);
+        } while (state == SocketState.ASYNC_END || dispatches != null && state != SocketState.CLOSED);
 
         return state;
     }

@@ -42,7 +42,7 @@ import org.apache.tomcat.util.res.StringManager;
  * Provides functionality and attributes common to all supported protocols
  * (currently HTTP and AJP) for processing a single request/response.
  */
-public abstract class AbstractProcessor extends AbstractProcessorLight implements ActionHook {
+public abstract class  AbstractProcessor extends AbstractProcessorLight implements ActionHook {
 
     private static final StringManager sm = StringManager.getManager(AbstractProcessor.class);
 

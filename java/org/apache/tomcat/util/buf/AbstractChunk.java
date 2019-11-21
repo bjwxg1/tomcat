@@ -31,6 +31,7 @@ public abstract class AbstractChunk implements Cloneable, Serializable {
      * Comments in the JRE source code for ArrayList and other classes indicate
      * that it may be as low as MAX_VALUE - 8 on some systems.
      */
+    //Chunk数组的最大Size
     public static final int ARRAY_MAX_SIZE = Integer.MAX_VALUE - 8;
 
     private int hashCode = 0;
@@ -38,8 +39,10 @@ public abstract class AbstractChunk implements Cloneable, Serializable {
 
     protected boolean isSet;
 
+    //Chunk中最大容量
     private int limit = -1;
 
+    //起始位置和结束位置
     protected int start;
     protected int end;
 

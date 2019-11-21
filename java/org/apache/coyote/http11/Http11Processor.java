@@ -179,12 +179,12 @@ public class Http11Processor extends AbstractProcessor {
 
 
     @SuppressWarnings("deprecation")
+    //构建Http11Processor
     public Http11Processor(AbstractHttp11Protocol<?> protocol, AbstractEndpoint<?> endpoint) {
         super(endpoint);
         this.protocol = protocol;
 
-        httpParser = new HttpParser(protocol.getRelaxedPathChars(),
-                protocol.getRelaxedQueryChars());
+        httpParser = new HttpParser(protocol.getRelaxedPathChars(), protocol.getRelaxedQueryChars());
 
         inputBuffer = new Http11InputBuffer(request, protocol.getMaxHttpHeaderSize(),
                 protocol.getRejectIllegalHeaderName(), httpParser);
@@ -500,6 +500,7 @@ public class Http11Processor extends AbstractProcessor {
 
             // Parsing the request header
             try {
+                //解析Http的请求行
                 if (!inputBuffer.parseRequestLine(keptAlive)) {
                     if (inputBuffer.getParsingRequestLinePhase() == -1) {
                         return SocketState.UPGRADING;
@@ -516,6 +517,7 @@ public class Http11Processor extends AbstractProcessor {
                     keptAlive = true;
                     // Set this every time in case limit has been changed via JMX
                     request.getMimeHeaders().setLimit(endpoint.getMaxHeaderCount());
+                    //解析Http请求头
                     if (!inputBuffer.parseHeaders()) {
                         // We've read part of the request, don't recycle it
                         // instead associate it with the socket
@@ -596,6 +598,7 @@ public class Http11Processor extends AbstractProcessor {
                 }
             }
 
+            //判断是否可以进行keepalive
             if (maxKeepAliveRequests == 1) {
                 keepAlive = false;
             } else if (maxKeepAliveRequests > 0 &&
@@ -607,6 +610,7 @@ public class Http11Processor extends AbstractProcessor {
             if (getErrorState().isIoAllowed()) {
                 try {
                     rp.setStage(org.apache.coyote.Constants.STAGE_SERVICE);
+                    //获取adapter，调用adapter的service方法进行处理
                     getAdapter().service(request, response);
                     // Handle when the response was committed before a serious
                     // error occurred.  Throwing a ServletException should both
