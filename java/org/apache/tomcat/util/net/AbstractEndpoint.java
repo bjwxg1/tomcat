@@ -722,7 +722,7 @@ public abstract class AbstractEndpoint<S> {
      * Max keep alive requests
      */
     //Tomcat支持 Http Connection：keep-alive。
-    //maxKeepAliveRequests：表示保持keep-Alive的Http最大连接数
+    //maxKeepAliveRequests：表示保持keep-Alive的Http最大连接数【一个socket连接上能执行的http请求次数】
     private int maxKeepAliveRequests=100; // as in Apache HTTPD server
     public int getMaxKeepAliveRequests() {
         return maxKeepAliveRequests;

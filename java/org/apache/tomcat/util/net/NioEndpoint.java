@@ -533,10 +533,9 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                     //if we have reached max connections, wait
                     //此处主要用于限制同时连接的Socket数，如果已经到达maxConnectionLimit,会将当前线程加入等待队列，并阻塞
                     countUpOrAwaitConnection();
-
                     SocketChannel socket = null;
                     try {
-                        // Accept the next incoming connection from the server socket
+                        //Accept the next incoming connection from the server socket
                         //获取已连接的Socket
                         socket = serverSock.accept();
                     } catch (IOException ioe) {
@@ -555,7 +554,6 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                     }
                     // Successful accept, reset the error delay
                     errorDelay = 0;
-
                     // Configure the socket
                     if (running && !paused) {
                         // setSocketOptions() will hand the socket off to
@@ -656,8 +654,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
             if (interestOps == OP_REGISTER) {
                 try {
                     //注册Read事件
-                    socket.getIOChannel().register(
-                            socket.getPoller().getSelector(), SelectionKey.OP_READ, socketWrapper);
+                    socket.getIOChannel().register(socket.getPoller().getSelector(), SelectionKey.OP_READ, socketWrapper);
                 } catch (Exception x) {
                     log.error(sm.getString("endpoint.nio.registerFail"), x);
                 }
