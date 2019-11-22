@@ -497,7 +497,6 @@ public class Http11Processor extends AbstractProcessor {
 
         while (!getErrorState().isError() && keepAlive && !isAsync() && upgradeToken == null &&
                 sendfileState == SendfileState.DONE && !endpoint.isPaused()) {
-
             // Parsing the request header
             try {
                 //解析Http的请求行
@@ -557,10 +556,10 @@ public class Http11Processor extends AbstractProcessor {
             }
 
             // Has an upgrade been requested?
+            //判断是否需要进行协议升级
             if (isConnectionToken(request.getMimeHeaders(), "upgrade")) {
                 // Check the protocol
                 String requestedProtocol = request.getHeader("Upgrade");
-
                 UpgradeProtocol upgradeProtocol = protocol.getUpgradeProtocol(requestedProtocol);
                 if (upgradeProtocol != null) {
                     if (upgradeProtocol.accept(request)) {
@@ -572,9 +571,7 @@ public class Http11Processor extends AbstractProcessor {
                         action(ActionCode.CLOSE,  null);
                         getAdapter().log(request, response, 0);
 
-                        InternalHttpUpgradeHandler upgradeHandler =
-                                upgradeProtocol.getInternalUpgradeHandler(
-                                        getAdapter(), cloneRequest(request));
+                        InternalHttpUpgradeHandler upgradeHandler = upgradeProtocol.getInternalUpgradeHandler(getAdapter(), cloneRequest(request));
                         UpgradeToken upgradeToken = new UpgradeToken(upgradeHandler, null, null);
                         action(ActionCode.UPGRADE, upgradeToken);
                         return SocketState.UPGRADING;
@@ -601,8 +598,7 @@ public class Http11Processor extends AbstractProcessor {
             //判断是否可以进行keepalive
             if (maxKeepAliveRequests == 1) {
                 keepAlive = false;
-            } else if (maxKeepAliveRequests > 0 &&
-                    socketWrapper.decrementKeepAlive() <= 0) {
+            } else if (maxKeepAliveRequests > 0 && socketWrapper.decrementKeepAlive() <= 0) {
                 keepAlive = false;
             }
 
@@ -611,6 +607,7 @@ public class Http11Processor extends AbstractProcessor {
                 try {
                     rp.setStage(org.apache.coyote.Constants.STAGE_SERVICE);
                     //获取adapter，调用adapter的service方法进行处理
+                    //TODO  这个地方很重要
                     getAdapter().service(request, response);
                     // Handle when the response was committed before a serious
                     // error occurred.  Throwing a ServletException should both
@@ -712,7 +709,9 @@ public class Http11Processor extends AbstractProcessor {
     @Override
     protected final void setSocketWrapper(SocketWrapperBase<?> socketWrapper) {
         super.setSocketWrapper(socketWrapper);
+        //初始化读缓冲区
         inputBuffer.init(socketWrapper);
+        //初始化写缓冲区
         outputBuffer.init(socketWrapper);
     }
 
@@ -733,8 +732,7 @@ public class Http11Processor extends AbstractProcessor {
 
     }
     private boolean handleIncompleteRequestLineRead() {
-        // Haven't finished reading the request so keep the socket
-        // open
+        // Haven't finished reading the request so keep the socket open
         openSocket = true;
         // Check to see if we have read any of the request line yet
         if (inputBuffer.getParsingRequestLinePhase() > 1) {

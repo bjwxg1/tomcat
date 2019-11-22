@@ -38,8 +38,7 @@ public abstract class AbstractProcessorLight implements Processor {
 
 
     @Override
-    public SocketState process(SocketWrapperBase<?> socketWrapper, SocketEvent status)
-            throws IOException {
+    public SocketState process(SocketWrapperBase<?> socketWrapper, SocketEvent status) throws IOException {
 
         SocketState state = SocketState.CLOSED;
         Iterator<DispatchType> dispatches = null;
@@ -53,15 +52,21 @@ public abstract class AbstractProcessorLight implements Processor {
                 if (!dispatches.hasNext()) {
                     state = checkForPipelinedData(state, socketWrapper);
                 }
-            } else if (status == SocketEvent.DISCONNECT) {
+            }
+            //如果SocketEvent为DisConnect，不用处理后续会直接返回SocketState.CLOSED
+            else if (status == SocketEvent.DISCONNECT) {
                 // Do nothing here, just wait for it to get recycled
-            } else if (isAsync() || isUpgrade() || state == SocketState.ASYNC_END) {
+            }
+            //处理Servlet3.0的异步或者upGrade
+            else if (isAsync() || isUpgrade() || state == SocketState.ASYNC_END) {
+                //进行处理
                 state = dispatch(status);
                 state = checkForPipelinedData(state, socketWrapper);
             } else if (status == SocketEvent.OPEN_WRITE) {
                 // Extra write event likely after async, ignore
                 state = SocketState.LONG;
             } else if (status == SocketEvent.OPEN_READ) {
+                //进行Http请求的处理
                 state = service(socketWrapper);
             } else if (status == SocketEvent.CONNECT_FAIL) {
                 logAccess(socketWrapper);
@@ -72,16 +77,13 @@ public abstract class AbstractProcessorLight implements Processor {
             }
 
             if (getLog().isDebugEnabled()) {
-                getLog().debug("Socket: [" + socketWrapper +
-                        "], Status in: [" + status +
-                        "], State out: [" + state + "]");
+                getLog().debug("Socket: [" + socketWrapper + "], Status in: [" + status + "], State out: [" + state + "]");
             }
 
             if (state != SocketState.CLOSED && isAsync()) {
                 state = asyncPostProcess();
                 if (getLog().isDebugEnabled()) {
-                    getLog().debug("Socket: [" + socketWrapper +
-                            "], State after async post processing: [" + state + "]");
+                    getLog().debug("Socket: [" + socketWrapper + "], State after async post processing: [" + state + "]");
                 }
             }
 
@@ -91,7 +93,6 @@ public abstract class AbstractProcessorLight implements Processor {
                 dispatches = getIteratorAndClearDispatches();
             }
         } while (state == SocketState.ASYNC_END || dispatches != null && state != SocketState.CLOSED);
-
         return state;
     }
 

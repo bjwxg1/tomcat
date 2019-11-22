@@ -54,6 +54,7 @@ public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
     public AbstractHttp11Protocol(AbstractEndpoint<S> endpoint) {
         super(endpoint);
         setConnectionTimeout(Constants.DEFAULT_CONNECTION_TIMEOUT);
+        //创建并设置ConnectionHandler
         ConnectionHandler<S> cHandler = new ConnectionHandler<>(this);
         setHandler(cHandler);
         getEndpoint().setHandler(cHandler);
@@ -379,6 +380,7 @@ public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
     /**
      * The upgrade protocol instances configured.
      */
+    //协议升级
     private final List<UpgradeProtocol> upgradeProtocols = new ArrayList<>();
     @Override
     public void addUpgradeProtocol(UpgradeProtocol upgradeProtocol) {
@@ -398,6 +400,7 @@ public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
      * The protocols that are available via internal Tomcat support for access
      * via ALPN negotiation.
      */
+    //应用层协议协商
     private final Map<String,UpgradeProtocol> negotiatedProtocols = new HashMap<>();
     private void configureUpgradeProtocol(UpgradeProtocol upgradeProtocol) {
         // HTTP Upgrade
@@ -406,19 +409,17 @@ public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
         if (httpUpgradeName != null && httpUpgradeName.length() > 0) {
             httpUpgradeProtocols.put(httpUpgradeName, upgradeProtocol);
             httpUpgradeConfigured = true;
-            getLog().info(sm.getString("abstractHttp11Protocol.httpUpgradeConfigured",
-                    getName(), httpUpgradeName));
+            getLog().info(sm.getString("abstractHttp11Protocol.httpUpgradeConfigured", getName(), httpUpgradeName));
         }
 
 
-        // ALPN
+        //ALPN
         String alpnName = upgradeProtocol.getAlpnName();
         if (alpnName != null && alpnName.length() > 0) {
             if (getEndpoint().isAlpnSupported()) {
                 negotiatedProtocols.put(alpnName, upgradeProtocol);
                 getEndpoint().addNegotiatedProtocol(alpnName);
-                getLog().info(sm.getString("abstractHttp11Protocol.alpnConfigured",
-                        getName(), alpnName));
+                getLog().info(sm.getString("abstractHttp11Protocol.alpnConfigured", getName(), alpnName));
             } else {
                 if (!httpUpgradeConfigured) {
                     // ALPN is not supported by this connector and the upgrade

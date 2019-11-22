@@ -39,7 +39,7 @@ public class NioChannel implements ByteChannel {
     protected static final StringManager sm = StringManager.getManager(NioChannel.class);
 
     protected static final ByteBuffer emptyBuf = ByteBuffer.allocate(0);
-    //包装的SocketChannel
+    //和NioChannel绑定的SocketChannel
     protected SocketChannel sc = null;
     protected SocketWrapperBase<NioChannel> socketWrapper = null;
     //bufHandler

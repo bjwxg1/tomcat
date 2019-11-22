@@ -225,20 +225,28 @@ public class NioBlockingSelector {
         }
 
         public void wakeup() {
-            if (wakeupCounter.addAndGet(1)==0) selector.wakeup();
+            if (wakeupCounter.addAndGet(1)==0) {
+                selector.wakeup();
+            }
         }
 
         public void cancel(SelectionKey sk, NioSocketWrapper key, int ops){
             if (sk!=null) {
                 sk.cancel();
                 sk.attach(null);
-                if (SelectionKey.OP_WRITE==(ops&SelectionKey.OP_WRITE)) countDown(key.getWriteLatch());
-                if (SelectionKey.OP_READ==(ops&SelectionKey.OP_READ))countDown(key.getReadLatch());
+                if (SelectionKey.OP_WRITE==(ops&SelectionKey.OP_WRITE)) {
+                    countDown(key.getWriteLatch());
+                }
+                if (SelectionKey.OP_READ==(ops&SelectionKey.OP_READ)) {
+                    countDown(key.getReadLatch());
+                }
             }
         }
 
         public void add(final NioSocketWrapper key, final int ops, final KeyReference ref) {
-            if ( key == null ) return;
+            if ( key == null ){
+                return;
+            }
             NioChannel nch = key.getSocket();
             final SocketChannel ch = nch.getIOChannel();
             if ( ch == null ) return;
@@ -287,6 +295,7 @@ public class NioBlockingSelector {
         public void run() {
             while (run) {
                 try {
+                    //运行events队列中的线程
                     events();
                     int keyCount = 0;
                     try {
@@ -444,7 +453,9 @@ public class NioBlockingSelector {
 
         }
 
-
+        /**
+         * 异步取消任务
+         */
         public static class RunnableCancel implements Runnable {
 
             private final SelectionKey key;

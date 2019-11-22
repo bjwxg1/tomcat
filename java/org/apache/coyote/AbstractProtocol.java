@@ -88,7 +88,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
     private Handler<S> handler;
 
 
-    //等待中的Processor
+    //异步处理的Processor
     private final Set<Processor> waitingProcessors = Collections.newSetFromMap(new ConcurrentHashMap<Processor, Boolean>());
 
 
@@ -203,6 +203,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
      *             not be sent.
      */
     @Deprecated
+    //是否发送原因短语
     private boolean sendReasonPhrase = false;
     /**
      * Returns whether the reason phrase will be sent in the response.
@@ -677,12 +678,13 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
     // ------------------------------------------- Connection handler base class
 
     protected static class ConnectionHandler<S> implements AbstractEndpoint.Handler<S> {
-
+        //处理的协议版本
         private final AbstractProtocol<S> proto;
         private final RequestGroupInfo global = new RequestGroupInfo();
         private final AtomicLong registerCount = new AtomicLong(0);
         //Socket和其对应的Processor映射
         private final Map<S,Processor> connections = new ConcurrentHashMap<>();
+        //已经回收的Processor便于Processor1重复使用
         private final RecycledProcessors recycledProcessors = new RecycledProcessors(this);
 
         public ConnectionHandler(AbstractProtocol<S> proto) {
@@ -723,8 +725,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             //获取socket对应的处理器
             Processor processor = connections.get(socket);
             if (getLog().isDebugEnabled()) {
-                getLog().debug(sm.getString("abstractConnectionHandler.connectionsGet",
-                        processor, socket));
+                getLog().debug(sm.getString("abstractConnectionHandler.connectionsGet", processor, socket));
             }
 
             // Timeouts are calculated on a dedicated thread and then
@@ -732,9 +733,8 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             // timeout may no longer be required. Check here and avoid
             // unnecessary processing.
             if (SocketEvent.TIMEOUT == status &&
-                    (processor == null ||
-                    !processor.isAsync() && !processor.isUpgrade() ||
-                    processor.isAsync() && !processor.checkAsyncTimeoutGeneration())) {
+                    (processor == null || !processor.isAsync() && !processor.isUpgrade() ||
+                            processor.isAsync() && !processor.checkAsyncTimeoutGeneration())) {
                 // This is effectively a NO-OP
                 return SocketState.OPEN;
             }
@@ -754,10 +754,12 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             try {
                 //如果Processor为为空，说明没有取到
                 if (processor == null) {
+                    //获取negotiatedProtocol
                     String negotiatedProtocol = wrapper.getNegotiatedProtocol();
                     // OpenSSL typically returns null whereas JSSE typically
                     // returns "" when no protocol is negotiated
                     if (negotiatedProtocol != null && negotiatedProtocol.length() > 0) {
+                        //获取升级协议
                         UpgradeProtocol upgradeProtocol = getProtocol().getNegotiatedProtocol(negotiatedProtocol);
                         if (upgradeProtocol != null) {
                             processor = upgradeProtocol.getProcessor(wrapper, getProtocol().getAdapter());
@@ -792,8 +794,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 if (processor == null) {
                     processor = recycledProcessors.pop();
                     if (getLog().isDebugEnabled()) {
-                        getLog().debug(sm.getString("abstractConnectionHandler.processorPop",
-                                processor));
+                        getLog().debug(sm.getString("abstractConnectionHandler.processorPop", processor));
                     }
                 }
                 if (processor == null) {
@@ -805,6 +806,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 processor.setSslSupport(wrapper.getSslSupport(getProtocol().getClientCertProvider()));
 
                 // Associate the processor with the connection
+                //增加到Connections池
                 connections.put(socket, processor);
 
                 SocketState state = SocketState.CLOSED;
@@ -821,28 +823,26 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                             // Assume direct HTTP/2 connection
                             UpgradeProtocol upgradeProtocol = getProtocol().getUpgradeProtocol("h2c");
                             if (upgradeProtocol != null) {
-                                processor = upgradeProtocol.getProcessor(
-                                        wrapper, getProtocol().getAdapter());
+                                processor = upgradeProtocol.getProcessor(wrapper, getProtocol().getAdapter());
                                 wrapper.unRead(leftOverInput);
                                 // Associate with the processor with the connection
                                 connections.put(socket, processor);
                             } else {
                                 if (getLog().isDebugEnabled()) {
-                                    getLog().debug(sm.getString(
-                                        "abstractConnectionHandler.negotiatedProcessor.fail",
-                                        "h2c"));
+                                    getLog().debug(sm.getString("abstractConnectionHandler.negotiatedProcessor.fail", "h2c"));
                                 }
                                 return SocketState.CLOSED;
                             }
                         } else {
                             HttpUpgradeHandler httpUpgradeHandler = upgradeToken.getHttpUpgradeHandler();
                             // Release the Http11 processor to be re-used
+                            //回收Processor便于重复使用
                             release(processor);
-                            // Create the upgrade processor
+                            //Create the upgrade processor
+                            //创建协议升级处理器
                             processor = getProtocol().createUpgradeProcessor(wrapper, upgradeToken);
                             if (getLog().isDebugEnabled()) {
-                                getLog().debug(sm.getString("abstractConnectionHandler.upgradeCreate",
-                                        processor, wrapper));
+                                getLog().debug(sm.getString("abstractConnectionHandler.upgradeCreate", processor, wrapper));
                             }
                             wrapper.unRead(leftOverInput);
                             // Mark the connection as upgraded
@@ -869,10 +869,12 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                     }
                 } while ( state == SocketState.UPGRADING);
 
+                //SocketState.LONG主要对应于同一个Http请求或者响应只处理了部分，需要继续读写数据
                 if (state == SocketState.LONG) {
                     // In the middle of processing a request/response. Keep the
                     // socket associated with the processor. Exact requirements
                     // depend on type of long poll
+                    //注册OP_READ
                     longPoll(wrapper, processor);
                     if (processor.isAsync()) {
                         getProtocol().addWaitingProcessor(processor);
@@ -880,6 +882,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 } else if (state == SocketState.OPEN) {
                     // In keep-alive but between requests. OK to recycle
                     // processor. Continue to poll for the next request.
+                    //TODO Keep-Alive 为什么要回收Processor
                     connections.remove(socket);
                     release(processor);
                     wrapper.registerReadInterest();
@@ -1019,6 +1022,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
         }
 
 
+        //注册Processor到MBean
         protected void register(Processor processor) {
             if (getProtocol().getDomain() != null) {
                 synchronized (this) {
@@ -1151,7 +1155,6 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
          */
         @Override
         public void run() {
-
             // Loop until we receive a shutdown command
             while (asyncTimeoutRunning) {
                 try {
@@ -1179,7 +1182,6 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
 
         protected void stop() {
             asyncTimeoutRunning = false;
-
             // Timeout any pending async request
             for (Processor processor : waitingProcessors) {
                 processor.timeoutAsync(-1);

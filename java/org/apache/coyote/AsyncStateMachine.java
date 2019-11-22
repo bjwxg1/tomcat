@@ -118,6 +118,7 @@ import org.apache.tomcat.util.security.PrivilegedSetTccl;
  *          other thread (OT) unless explicitly marked.
  * </pre>
  */
+//异步状态机
 public class AsyncStateMachine {
 
     /**

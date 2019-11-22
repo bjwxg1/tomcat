@@ -39,6 +39,7 @@ public abstract class SocketWrapperBase<E> {
 
     // Volatile because I/O and setting the timeout values occurs on a different
     // thread to the thread checking the timeout.
+    //读写超时时间
     private volatile long readTimeout = -1;
     private volatile long writeTimeout = -1;
 

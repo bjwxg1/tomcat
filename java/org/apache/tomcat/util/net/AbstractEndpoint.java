@@ -495,7 +495,7 @@ public abstract class AbstractEndpoint<S> {
     /**
      * External Executor based thread pool.
      */
-    //Work线程池处理Socket连接的IO操作
+    //Work线程池。处理Socket连接的IO操作
     private Executor executor = null;
     public void setExecutor(Executor executor) {
         this.executor = executor;
@@ -578,6 +578,8 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Keepalive timeout, if not set the soTimeout is used.
      */
+    //Tomcat支持 Http Connection：keep-alive。
+    //keepAliveTimeout：表示在该TCP连接上，在下次请求到来之前，保持该连接多久，如果未设置即为tcp的soTimeout
     private Integer keepAliveTimeout = null;
     public int getKeepAliveTimeout() {
         if (keepAliveTimeout == null) {
@@ -719,6 +721,8 @@ public abstract class AbstractEndpoint<S> {
     /**
      * Max keep alive requests
      */
+    //Tomcat支持 Http Connection：keep-alive。
+    //maxKeepAliveRequests：表示保持keep-Alive的Http最大连接数
     private int maxKeepAliveRequests=100; // as in Apache HTTPD server
     public int getMaxKeepAliveRequests() {
         return maxKeepAliveRequests;
@@ -731,6 +735,7 @@ public abstract class AbstractEndpoint<S> {
      * The maximum number of headers in a request that are allowed.
      * 100 by default. A value of less than 0 means no limit.
      */
+    //Http请求的最大Header数
     private int maxHeaderCount = 100; // as in Apache HTTPD server
     public int getMaxHeaderCount() {
         return maxHeaderCount;
@@ -775,7 +780,7 @@ public abstract class AbstractEndpoint<S> {
 
     protected abstract boolean getDeferAccept();
 
-
+    //ALPN 协议协商协议
     protected final List<String> negotiableProtocols = new ArrayList<>();
     public void addNegotiatedProtocol(String negotiableProtocol) {
         negotiableProtocols.add(negotiableProtocol);
@@ -1084,8 +1089,7 @@ public abstract class AbstractEndpoint<S> {
      *
      * @return if processing was triggered successfully
      */
-    public boolean processSocket(SocketWrapperBase<S> socketWrapper,
-            SocketEvent event, boolean dispatch) {
+    public boolean processSocket(SocketWrapperBase<S> socketWrapper, SocketEvent event, boolean dispatch) {
         try {
             if (socketWrapper == null) {
                 return false;

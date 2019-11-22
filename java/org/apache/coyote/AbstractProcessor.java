@@ -201,8 +201,10 @@ public abstract class  AbstractProcessor extends AbstractProcessorLight implemen
     public final SocketState dispatch(SocketEvent status) throws IOException {
 
         if (status == SocketEvent.OPEN_WRITE && response.getWriteListener() != null) {
+            //处理异步状态机
             asyncStateMachine.asyncOperation();
             try {
+                //刷新写缓冲区的数据
                 if (flushBufferedWrite()) {
                     return SocketState.LONG;
                 }
@@ -265,11 +267,8 @@ public abstract class  AbstractProcessor extends AbstractProcessorLight implemen
         }
 
         if (getLog().isDebugEnabled()) {
-            getLog().debug("Socket: [" + socketWrapper +
-                    "], Status in: [" + status +
-                    "], State out: [" + state + "]");
+            getLog().debug("Socket: [" + socketWrapper + "], Status in: [" + status + "], State out: [" + state + "]");
         }
-
         return state;
     }
 

@@ -711,7 +711,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
         //关闭标识
         private volatile boolean close = false;
         private long nextExpiration = 0;//optimize expiration handling
-        //每次添加PollerEvent到Events队列的时候需要加1，每次Poller线程运行一次都会跟新到-1
+        //每次添加PollerEvent到Events队列的时候需要加1，每次Poller线程运行一次都会更新到-1
         private AtomicLong wakeupCounter = new AtomicLong(0);
 
         private volatile int keyCount = 0;
@@ -836,7 +836,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                 if (key == null) {
                     return null;//nothing to do
                 }
-                //selectkey attach一个null值，返回旧的attach
+                //selectKey attach一个null值，返回旧的attach
                 ka = (NioSocketWrapper) key.attach(null);
                 if (ka != null) {
                     // If attachment is non-null then there may be a current
@@ -904,7 +904,6 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
         public void run() {
             // Loop until destroy() is called
             while (true) {
-
                 boolean hasEvents = false;
                 try {
                     if (!close) {
@@ -923,6 +922,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                     if (close) {
                         //再次处理PollerEvent
                         events();
+                        //TODO
                         timeout(0, false);
                         try {
                             selector.close();
@@ -966,7 +966,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                 timeout(keyCount, hasEvents);
             }//while
 
-            //如果Poller运行结果，对StopLatch进行CountDown
+            //如果Poller运行结束，对StopLatch进行CountDown
             getStopLatch().countDown();
         }
 
@@ -985,12 +985,13 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                             unreg(sk, attachment, sk.readyOps());
                             boolean closeSocket = false;
                             // Read goes before write
-                            //处理读写事件
+                            //处理读事件
                             if (sk.isReadable()) {
                                 if (!processSocket(attachment, SocketEvent.OPEN_READ, true)) {
                                     closeSocket = true;
                                 }
                             }
+                            //处理读事件
                             if (!closeSocket && sk.isWritable()) {
                                 if (!processSocket(attachment, SocketEvent.OPEN_WRITE, true)) {
                                     closeSocket = true;
@@ -1016,6 +1017,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
         public SendfileState processSendfile(SelectionKey sk, NioSocketWrapper socketWrapper, boolean calledByProcessor) {
             NioChannel sc = null;
             try {
+                //TODO 为何
                 unreg(sk, socketWrapper, sk.readyOps());
                 SendfileData sd = socketWrapper.getSendfileData();
 
@@ -1364,7 +1366,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
 
         @Override
         public int read(boolean block, ByteBuffer to) throws IOException {
-            //从socket的ReadBuffer中获取可读数据量填充到to Buffer
+            //从socket的ReadBuffer中获取可读数据流填充到to Buffer
             int nRead = populateReadBuffer(to);
             if (nRead > 0) {
                 return nRead;
@@ -1433,8 +1435,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                     // Ignore
                 }
                 try {
-                    NioEndpoint.NioSocketWrapper att = (NioEndpoint.NioSocketWrapper) channel
-                            .getAttachment();
+                    NioEndpoint.NioSocketWrapper att = (NioEndpoint.NioSocketWrapper) channel.getAttachment();
                     if (att == null) {
                         throw new IOException("Key must be cancelled.");
                     }
@@ -1651,7 +1652,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                             // must always be OPEN_READ after it completes. It
                             // is OK to always set this as it is only used if
                             // the handshake completes.
-                            //TODO 爲毛
+                            //TODO
                             event = SocketEvent.OPEN_READ;
                         }
                     }

@@ -35,13 +35,13 @@ public final class Constants {
 
 
     /**
-     * CR.
+     * CR.【回车】
      */
     public static final byte CR = (byte) '\r';
 
 
     /**
-     * LF.
+     * LF.【换行】
      */
     public static final byte LF = (byte) '\n';
 
