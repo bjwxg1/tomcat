@@ -732,6 +732,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             // dispatched. Because of delays in the dispatch process, the
             // timeout may no longer be required. Check here and avoid
             // unnecessary processing.
+            //TODO
             if (SocketEvent.TIMEOUT == status &&
                     (processor == null || !processor.isAsync() && !processor.isUpgrade() ||
                             processor.isAsync() && !processor.checkAsyncTimeoutGeneration())) {
@@ -775,9 +776,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                             // replace the code below with the commented out
                             // block.
                             if (getLog().isDebugEnabled()) {
-                                getLog().debug(sm.getString(
-                                    "abstractConnectionHandler.negotiatedProcessor.fail",
-                                    negotiatedProtocol));
+                                getLog().debug(sm.getString("abstractConnectionHandler.negotiatedProcessor.fail", negotiatedProtocol));
                             }
                             return SocketState.CLOSED;
                             /*
@@ -800,6 +799,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 if (processor == null) {
                     //根据协议创建相应的Processor【】
                     processor = getProtocol().createProcessor();
+                    //注册到Mbean
                     register(processor);
                 }
 
@@ -813,7 +813,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 do {
                     //真正的进行处理
                     state = processor.process(wrapper, status);
-
+                    //处理协议升级
                     if (state == SocketState.UPGRADING) {
                         // Get the HTTP upgrade handler
                         UpgradeToken upgradeToken = processor.getUpgradeToken();
@@ -882,7 +882,6 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 } else if (state == SocketState.OPEN) {
                     // In keep-alive but between requests. OK to recycle
                     // processor. Continue to poll for the next request.
-                    //TODO Keep-Alive 为什么要回收Processor
                     connections.remove(socket);
                     release(processor);
                     wrapper.registerReadInterest();

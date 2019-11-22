@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import org.apache.tomcat.util.buf.ByteBufferUtils;
 
 /**
- * Socekt Buffer的处理类
+ * Socket Buffer的处理类
  */
 public class SocketBufferHandler {
 

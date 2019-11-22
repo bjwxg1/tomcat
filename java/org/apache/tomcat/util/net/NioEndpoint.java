@@ -301,14 +301,11 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
             running = true;
             paused = false;
             //创建processorCache Stack
-            processorCache = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE,
-                    socketProperties.getProcessorCache());
+            processorCache = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE, socketProperties.getProcessorCache());
             //创建eventCache stack
-            eventCache = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE,
-                    socketProperties.getEventCache());
+            eventCache = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE, socketProperties.getEventCache());
             //创建nioChannels stack
-            nioChannels = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE,
-                    socketProperties.getBufferPool());
+            nioChannels = new SynchronizedStack<>(SynchronizedStack.DEFAULT_SIZE, socketProperties.getBufferPool());
 
             // Create worker collection
             if (getExecutor() == null) {
@@ -908,8 +905,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                         hasEvents = events();
                         //如果getAndSet(-1)返回值>0说明，Event队列有需要处理的Event直接进行处理
                         if (wakeupCounter.getAndSet(-1) > 0) {
-                            //if we are here, means we have other stuff to do
-                            //do a non blocking select
+                            //非阻塞的Select操作，因为Event队列有需要处理的Event直接进行处理
                             keyCount = selector.selectNow();
                         } else {
                             keyCount = selector.select(selectorTimeout);
@@ -919,7 +915,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                     if (close) {
                         //再次处理PollerEvent
                         events();
-                        //TODO
+                        //处理超时连接
                         timeout(0, false);
                         try {
                             selector.close();
@@ -941,8 +937,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                 }
 
                 //获取所有的准备好的SelectionKey
-                Iterator<SelectionKey> iterator =
-                        keyCount > 0 ? selector.selectedKeys().iterator() : null;
+                Iterator<SelectionKey> iterator = keyCount > 0 ? selector.selectedKeys().iterator() : null;
                 // Walk through the collection of ready keys and dispatch
                 // any active event.
                 while (iterator != null && iterator.hasNext()) {
@@ -1011,10 +1006,10 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
             }
         }
 
+        //SendFile处理
         public SendfileState processSendfile(SelectionKey sk, NioSocketWrapper socketWrapper, boolean calledByProcessor) {
             NioChannel sc = null;
             try {
-                //TODO 为何
                 unreg(sk, socketWrapper, sk.readyOps());
                 SendfileData sd = socketWrapper.getSendfileData();
 
@@ -1050,8 +1045,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                         // Unusual not to be able to transfer any bytes
                         // Check the length was set correctly
                         if (sd.fchannel.size() <= sd.pos) {
-                            throw new IOException("Sendfile configured to " +
-                                    "send more data than was available");
+                            throw new IOException("Sendfile configured to " + "send more data than was available");
                         }
                     }
                 }
@@ -1131,7 +1125,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
             attachment.interestOps(intops);
         }
 
-        //TODO 这是什么意思
+        //绑定在Poller上的Socket超时的情况，改方法主要以固定的频率检查在selector上注册的所有的Key，关闭读写超时的连接
         protected void timeout(int keyCount, boolean hasEvents) {
             long now = System.currentTimeMillis();
             // This method is called on every loop of the Poller. Don't process
@@ -1147,6 +1141,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
             //timeout
             int keycount = 0;
             try {
+                //返回在selector上注册的所有Key
                 for (SelectionKey key : selector.keys()) {
                     keycount++;
                     try {
@@ -1158,7 +1153,9 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                             key.interestOps(0);
                             ka.interestOps(0); //avoid duplicate stop calls
                             processKey(key, ka);
-                        } else if ((ka.interestOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ ||
+                        }
+                        //如果存在可读写的SelectionKey，判断是否存在读写超时，如果存在读写超时进行超时处理
+                        else if ((ka.interestOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ ||
                                 (ka.interestOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
                             boolean isTimedOut = false;
                             // Check for read timeout
@@ -1361,6 +1358,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
         }
 
 
+        //从socket读取数据填充到ByteBuffer TO
         @Override
         public int read(boolean block, ByteBuffer to) throws IOException {
             //从socket的ReadBuffer中获取可读数据流填充到to Buffer
@@ -1627,7 +1625,6 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
 
             try {
                 int handshake = -1;
-
                 try {
                     if (key != null) {
                         //判断握手是否完毕
