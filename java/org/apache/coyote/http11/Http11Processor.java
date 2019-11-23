@@ -73,6 +73,7 @@ public class Http11Processor extends AbstractProcessor {
     private static final StringManager sm = StringManager.getManager(Http11Processor.class);
 
 
+    //谢谢类型
     private final AbstractHttp11Protocol<?> protocol;
 
 
@@ -138,6 +139,7 @@ public class Http11Processor extends AbstractProcessor {
     /**
      * Regular expression that defines the restricted user agents.
      */
+    //一个正则表达式，用来处理user-agent header，如果user-agent信息和表达式匹配，则该请求不能keepalive
     protected Pattern restrictedUserAgents = null;
 
 
@@ -457,8 +459,7 @@ public class Http11Processor extends AbstractProcessor {
         if (encodingName.equals("identity")) {
             // Skip
         } else if (encodingName.equals("chunked")) {
-            inputBuffer.addActiveFilter
-                (inputFilters[Constants.CHUNKED_FILTER]);
+            inputBuffer.addActiveFilter(inputFilters[Constants.CHUNKED_FILTER]);
             contentDelimitation = true;
         } else {
             for (int i = pluggableFilterIndex; i < inputFilters.length; i++) {
@@ -583,6 +584,7 @@ public class Http11Processor extends AbstractProcessor {
                 // Setting up filters, and parse some request headers
                 rp.setStage(org.apache.coyote.Constants.STAGE_PREPARE);
                 try {
+                    //Request信息的一些預處理
                     prepareRequest();
                 } catch (Throwable t) {
                     ExceptionUtils.handleThrowable(t);
@@ -778,6 +780,7 @@ public class Http11Processor extends AbstractProcessor {
         if (endpoint.isSSLEnabled()) {
             request.scheme().setString("https");
         }
+        //处理请求协议
         MessageBytes protocolMB = request.protocol();
         if (protocolMB.equals(Constants.HTTP_11)) {
             http11 = true;
@@ -806,6 +809,7 @@ public class Http11Processor extends AbstractProcessor {
         MimeHeaders headers = request.getMimeHeaders();
 
         // Check connection header
+        //处理Connection Header 设置keepAlive
         MessageBytes connectionValueMB = headers.getValue(Constants.CONNECTION);
         if (connectionValueMB != null && !connectionValueMB.isNull()) {
             Set<String> tokens = new HashSet<>();
@@ -817,10 +821,12 @@ public class Http11Processor extends AbstractProcessor {
             }
         }
 
+        //处理Expect Header
         if (http11) {
             MessageBytes expectMB = headers.getValue("expect");
             if (expectMB != null && !expectMB.isNull()) {
                 if (expectMB.toString().trim().equalsIgnoreCase("100-continue")) {
+                    //TODO
                     inputBuffer.setSwallowInput(false);
                     request.setExpectation(true);
                 } else {
@@ -831,14 +837,14 @@ public class Http11Processor extends AbstractProcessor {
         }
 
         // Check user-agent header
+        //user-agent header处理
         if (restrictedUserAgents != null && (http11 || keepAlive)) {
             MessageBytes userAgentValueMB = headers.getValue("user-agent");
             // Check in the restricted list, and adjust the http11
             // and keepAlive flags accordingly
             if(userAgentValueMB != null && !userAgentValueMB.isNull()) {
                 String userAgentValue = userAgentValueMB.toString();
-                if (restrictedUserAgents != null &&
-                        restrictedUserAgents.matcher(userAgentValue).matches()) {
+                if (restrictedUserAgents != null && restrictedUserAgents.matcher(userAgentValue).matches()) {
                     http11 = false;
                     keepAlive = false;
                 }
@@ -916,8 +922,7 @@ public class Http11Processor extends AbstractProcessor {
                     if (hostValueMB != null) {
                         // Any host in the request line must be consistent with
                         // the Host header
-                        if (!hostValueMB.getByteChunk().equals(
-                                uriB, uriBCStart + pos, slashPos - pos)) {
+                        if (!hostValueMB.getByteChunk().equals(uriB, uriBCStart + pos, slashPos - pos)) {
                             if (protocol.getAllowHostHeaderMismatch()) {
                                 // The requirements of RFC 2616 are being
                                 // applied. If the host header and the request
@@ -966,6 +971,7 @@ public class Http11Processor extends AbstractProcessor {
 
         // Parse transfer-encoding header
         if (http11) {
+            //处理Transfer Encoding
             MessageBytes transferEncodingValueMB = headers.getValue("transfer-encoding");
             if (transferEncodingValueMB != null && !transferEncodingValueMB.isNull()) {
                 String transferEncodingValue = transferEncodingValueMB.toString();
@@ -994,6 +1000,7 @@ public class Http11Processor extends AbstractProcessor {
             badRequest("http11processor.request.multipleContentLength");
         }
         if (contentLength >= 0) {
+            //TODO
             if (contentDelimitation) {
                 // contentDelimitation being true at this point indicates that
                 // chunked encoding is being used but chunked encoding should

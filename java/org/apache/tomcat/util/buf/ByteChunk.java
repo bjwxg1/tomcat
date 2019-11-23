@@ -303,12 +303,9 @@ public final class ByteChunk extends AbstractChunk {
         }
 
         // Need more space than we can afford, need to flush buffer.
-
         // The buffer is already at (or bigger than) limit.
-
         // We chunk the data into slices fitting in the buffer limit, although
         // if the data is written directly if it doesn't fit.
-
         int avail = limit - end;
         System.arraycopy(src, off, buff, end, avail);
         end += avail;

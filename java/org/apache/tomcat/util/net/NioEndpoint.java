@@ -89,9 +89,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
     //NioEndpoint的ServerSocketChannel
     private volatile ServerSocketChannel serverSock = null;
 
-    /**
-     *
-     */
+    //关闭EndPoint时，记录Poller线程的关闭情况
     private volatile CountDownLatch stopLatch = null;
 
     /**
@@ -243,12 +241,9 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
 
     // ----------------------------------------------- Public Lifecycle Methods
 
-    /**
-     * Initialize the endpoint.
-     */
+    //创建ServerSocketChannel，并绑定到指定的端口，启动监听
     @Override
     public void bind() throws Exception {
-
         if (!getUseInheritedChannel()) {
             //创建ServerSocketChannel对象
             serverSock = ServerSocketChannel.open();
@@ -290,9 +285,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
         selectorPool.open();
     }
 
-    /**
-     * Start the NIO endpoint, creating acceptor, poller threads.
-     */
+    //启动EndPoint，创建Acceptor线程和Poller线程并启动
     @Override
     public void startInternal() throws Exception {
 
@@ -543,7 +536,6 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                             // Introduce delay if necessary
                             //出现异常时，线程休眠一定的时间，引入一些延迟
                             errorDelay = handleExceptionWithDelay(errorDelay);
-                            // re-throw
                             throw ioe;
                         } else {
                             break;
@@ -664,6 +656,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
                         // processed. Count down the connections at this point
                         // since it won't have been counted down when the socket
                         // closed.
+                        //TODO 什么时候到这
                         socket.socketWrapper.getEndpoint().countDownConnection();
                         ((NioSocketWrapper) socket.socketWrapper).closed = true;
                     } else {

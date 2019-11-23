@@ -34,10 +34,13 @@ import java.util.Locale;
  * @author James Todd [gonzo@eng.sun.com]
  * @author Costin Manolache
  */
+//Tomcat为了提高性能，在接受到socket传入的字节之后并不会马上进行编码转换，而是保持byte[]的方式，在用到的时候再进行转换。
+//在tomcat的实现中，MessageBytes正是byte[]的抽象。
 public final class MessageBytes implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
 
     // primary type ( whatever is set as original value )
+    //原始消息类型
     private int type = T_NULL;
 
     public static final int T_NULL = 0;
@@ -56,7 +59,9 @@ public final class MessageBytes implements Cloneable, Serializable {
     private boolean hasHashCode=false;
 
     // Internal objects to represent array + offset, and specific methods
+    //装填byte数组的ByteChunk
     private final ByteChunk byteC=new ByteChunk();
+    //装填Char数组的CharChunk
     private final CharChunk charC=new CharChunk();
 
     // String
