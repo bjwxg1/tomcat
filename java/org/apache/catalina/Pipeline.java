@@ -36,14 +36,15 @@ import java.util.Set;
  * @author Craig R. McClanahan
  * @author Peter Donald
  */
+//
 public interface Pipeline {
 
     /**
      * @return the Valve instance that has been distinguished as the basic
      * Valve for this Pipeline (if any).
      */
+    //获取基础Valve
     public Valve getBasic();
-
 
     /**
      * <p>Set the Valve instance that has been distinguished as the basic

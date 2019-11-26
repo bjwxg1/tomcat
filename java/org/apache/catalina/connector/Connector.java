@@ -52,20 +52,17 @@ import org.apache.tomcat.util.res.StringManager;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  */
-public class Connector extends LifecycleMBeanBase  {
+public class Connector extends LifecycleMBeanBase {
 
     private static final Log log = LogFactory.getLog(Connector.class);
-
 
     /**
      * Alternate flag to enable recycling of facades.
      */
-    public static final boolean RECYCLE_FACADES =
-        Boolean.parseBoolean(System.getProperty("org.apache.catalina.connector.RECYCLE_FACADES", "false"));
+    public static final boolean RECYCLE_FACADES = Boolean.parseBoolean(System.getProperty("org.apache.catalina.connector.RECYCLE_FACADES", "false"));
 
 
     // ------------------------------------------------------------ Constructor
-
     public Connector() {
         this(null);
     }
@@ -75,6 +72,7 @@ public class Connector extends LifecycleMBeanBase  {
         // Instantiate protocol handler
         ProtocolHandler p = null;
         try {
+            //创建protocolHandler
             Class<?> clazz = Class.forName(protocolHandlerClassName);
             p = (ProtocolHandler) clazz.getConstructor().newInstance();
         } catch (Exception e) {
@@ -93,8 +91,6 @@ public class Connector extends LifecycleMBeanBase  {
 
 
     // ----------------------------------------------------- Instance Variables
-
-
     /**
      * The <code>Service</code> we are associated with (if any).
      */
@@ -104,12 +100,14 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * Do we allow TRACE ?
      */
+    //是否允许Http Trace方法
     protected boolean allowTrace = false;
 
 
     /**
      * Default timeout for asynchronous requests (ms).
      */
+    //异步超时时间
     protected long asyncTimeout = 30000;
 
 
@@ -223,8 +221,8 @@ public class Connector extends LifecycleMBeanBase  {
      * Coyote Protocol handler class name.
      * Defaults to the Coyote HTTP/1.1 protocolHandler.
      */
-    protected String protocolHandlerClassName =
-        "org.apache.coyote.http11.Http11NioProtocol";
+    //Protocol handler类名称
+    protected String protocolHandlerClassName = "org.apache.coyote.http11.Http11NioProtocol";
 
 
     /**
@@ -264,7 +262,8 @@ public class Connector extends LifecycleMBeanBase  {
     protected boolean useBodyEncodingForURI = false;
 
 
-    protected static final HashMap<String,String> replacements = new HashMap<>();
+    protected static final HashMap<String, String> replacements = new HashMap<>();
+
     static {
         replacements.put("acceptCount", "backlog");
         replacements.put("connectionLinger", "soLinger");
@@ -293,7 +292,7 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * Set a property on the protocol handler.
      *
-     * @param name the property name
+     * @param name  the property name
      * @param value the property value
      * @return <code>true</code> if the property was successfully set
      */
@@ -320,7 +319,7 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * Set a property on the protocol handler.
      *
-     * @param name the property name
+     * @param name  the property name
      * @param value the property value
      */
     public void setAttribute(String name, Object value) {
@@ -348,7 +347,7 @@ public class Connector extends LifecycleMBeanBase  {
 
     /**
      * @return <code>true</code> if the TRACE method is allowed. Default value
-     *         is <code>false</code>.
+     * is <code>false</code>.
      */
     public boolean getAllowTrace() {
         return this.allowTrace;
@@ -380,7 +379,7 @@ public class Connector extends LifecycleMBeanBase  {
      * @param asyncTimeout The new timeout in ms.
      */
     public void setAsyncTimeout(long asyncTimeout) {
-        this.asyncTimeout= asyncTimeout;
+        this.asyncTimeout = asyncTimeout;
         setProperty("asyncTimeout", String.valueOf(asyncTimeout));
     }
 
@@ -451,7 +450,7 @@ public class Connector extends LifecycleMBeanBase  {
      * parsed by the container.
      *
      * @param maxPostSize The new maximum size in bytes of a POST which will
-     * be automatically parsed by the container
+     *                    be automatically parsed by the container
      */
     public void setMaxPostSize(int maxPostSize) {
         this.maxPostSize = maxPostSize;
@@ -473,7 +472,7 @@ public class Connector extends LifecycleMBeanBase  {
      * during authentication.
      *
      * @param maxSavePostSize The new maximum size in bytes of a POST which will
-     * be saved by the container during authentication.
+     *                        be saved by the container during authentication.
      */
     public void setMaxSavePostSize(int maxSavePostSize) {
         this.maxSavePostSize = maxSavePostSize;
@@ -554,14 +553,14 @@ public class Connector extends LifecycleMBeanBase  {
      */
     public String getProtocol() {
         if (("org.apache.coyote.http11.Http11NioProtocol".equals(getProtocolHandlerClassName()) &&
-                    (!AprLifecycleListener.isAprAvailable() || !AprLifecycleListener.getUseAprConnector())) ||
+                (!AprLifecycleListener.isAprAvailable() || !AprLifecycleListener.getUseAprConnector())) ||
                 "org.apache.coyote.http11.Http11AprProtocol".equals(getProtocolHandlerClassName()) &&
-                    AprLifecycleListener.getUseAprConnector()) {
+                        AprLifecycleListener.getUseAprConnector()) {
             return "HTTP/1.1";
         } else if (("org.apache.coyote.ajp.AjpNioProtocol".equals(getProtocolHandlerClassName()) &&
-                    (!AprLifecycleListener.isAprAvailable() || !AprLifecycleListener.getUseAprConnector())) ||
+                (!AprLifecycleListener.isAprAvailable() || !AprLifecycleListener.getUseAprConnector())) ||
                 "org.apache.coyote.ajp.AjpAprProtocol".equals(getProtocolHandlerClassName()) &&
-                    AprLifecycleListener.getUseAprConnector()) {
+                        AprLifecycleListener.getUseAprConnector()) {
             return "AJP/1.3";
         }
         return getProtocolHandlerClassName();
@@ -572,15 +571,12 @@ public class Connector extends LifecycleMBeanBase  {
      * Set the Coyote protocol which will be used by the connector.
      *
      * @param protocol The Coyote protocol name
-     *
      * @deprecated Will be removed in Tomcat 9. Protocol must be configured via
-     *             the constructor
+     * the constructor
      */
     @Deprecated
     public void setProtocol(String protocol) {
-
-        boolean aprConnector = AprLifecycleListener.isAprAvailable() &&
-                AprLifecycleListener.getUseAprConnector();
+        boolean aprConnector = AprLifecycleListener.isAprAvailable() && AprLifecycleListener.getUseAprConnector();
 
         if ("HTTP/1.1".equals(protocol) || protocol == null) {
             if (aprConnector) {
@@ -613,9 +609,8 @@ public class Connector extends LifecycleMBeanBase  {
      * by the connector.
      *
      * @param protocolHandlerClassName The new class name
-     *
      * @deprecated Will be removed in Tomcat 9. Protocol must be configured via
-     *             the constructor
+     * the constructor
      */
     @Deprecated
     public void setProtocolHandlerClassName(String protocolHandlerClassName) {
@@ -646,7 +641,7 @@ public class Connector extends LifecycleMBeanBase  {
      */
     public void setProxyName(String proxyName) {
 
-        if(proxyName != null && proxyName.length() > 0) {
+        if (proxyName != null && proxyName.length() > 0) {
             this.proxyName = proxyName;
         } else {
             this.proxyName = null;
@@ -747,7 +742,6 @@ public class Connector extends LifecycleMBeanBase  {
 
     /**
      * @return the character encoding to be used for the URI using lower case.
-     *
      * @deprecated This will be removed in 9.0.x onwards
      */
     @Deprecated
@@ -757,9 +751,8 @@ public class Connector extends LifecycleMBeanBase  {
 
 
     /**
-     *
      * @return The Charset to use to convert raw URI bytes (after %nn decoding)
-     *         to characters. This will never be null
+     * to characters. This will never be null
      */
     public Charset getURICharset() {
         return uriCharset;
@@ -817,7 +810,7 @@ public class Connector extends LifecycleMBeanBase  {
      * Connector.
      *
      * @param xpoweredBy true if generation of X-Powered-By response header is
-     * to be enabled, false otherwise
+     *                   to be enabled, false otherwise
      */
     public void setXpoweredBy(boolean xpoweredBy) {
         this.xpoweredBy = xpoweredBy;
@@ -900,7 +893,6 @@ public class Connector extends LifecycleMBeanBase  {
      * @return a new Servlet response object
      */
     public Response createResponse() {
-
         Response response = new Response();
         response.setConnector(this);
         return (response);
@@ -962,10 +954,9 @@ public class Connector extends LifecycleMBeanBase  {
 
     @Override
     protected void initInternal() throws LifecycleException {
-
         super.initInternal();
-
         // Initialize adapter
+        //创建adapter
         adapter = new CoyoteAdapter(this);
         protocolHandler.setAdapter(adapter);
 
@@ -975,25 +966,22 @@ public class Connector extends LifecycleMBeanBase  {
         }
 
         if (protocolHandler.isAprRequired() && !AprLifecycleListener.isAprAvailable()) {
-            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerNoApr",
-                    getProtocolHandlerClassName()));
+            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerNoApr", getProtocolHandlerClassName()));
         }
         if (AprLifecycleListener.isAprAvailable() && AprLifecycleListener.getUseOpenSSL() &&
                 protocolHandler instanceof AbstractHttp11JsseProtocol) {
-            AbstractHttp11JsseProtocol<?> jsseProtocolHandler =
-                    (AbstractHttp11JsseProtocol<?>) protocolHandler;
-            if (jsseProtocolHandler.isSSLEnabled() &&
-                    jsseProtocolHandler.getSslImplementationName() == null) {
+            AbstractHttp11JsseProtocol<?> jsseProtocolHandler = (AbstractHttp11JsseProtocol<?>) protocolHandler;
+            if (jsseProtocolHandler.isSSLEnabled() && jsseProtocolHandler.getSslImplementationName() == null) {
                 // OpenSSL is compatible with the JSSE configuration, so use it if APR is available
                 jsseProtocolHandler.setSslImplementationName(OpenSSLImplementation.class.getName());
             }
         }
 
         try {
+            //初始化protocolHandler
             protocolHandler.init();
         } catch (Exception e) {
-            throw new LifecycleException(
-                    sm.getString("coyoteConnector.protocolHandlerInitializationFailed"), e);
+            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerInitializationFailed"), e);
         }
     }
 
@@ -1001,24 +989,19 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * Begin processing requests via this Connector.
      *
-     * @exception LifecycleException if a fatal startup error occurs
+     * @throws LifecycleException if a fatal startup error occurs
      */
     @Override
     protected void startInternal() throws LifecycleException {
-
         // Validate settings before starting
         if (getPort() < 0) {
-            throw new LifecycleException(sm.getString(
-                    "coyoteConnector.invalidPort", Integer.valueOf(getPort())));
+            throw new LifecycleException(sm.getString("coyoteConnector.invalidPort", Integer.valueOf(getPort())));
         }
-
         setState(LifecycleState.STARTING);
-
         try {
             protocolHandler.start();
         } catch (Exception e) {
-            throw new LifecycleException(
-                    sm.getString("coyoteConnector.protocolHandlerStartFailed"), e);
+            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerStartFailed"), e);
         }
     }
 
@@ -1026,18 +1009,15 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * Terminate processing requests via this Connector.
      *
-     * @exception LifecycleException if a fatal shutdown error occurs
+     * @throws LifecycleException if a fatal shutdown error occurs
      */
     @Override
     protected void stopInternal() throws LifecycleException {
-
         setState(LifecycleState.STOPPING);
-
         try {
             protocolHandler.stop();
         } catch (Exception e) {
-            throw new LifecycleException(
-                    sm.getString("coyoteConnector.protocolHandlerStopFailed"), e);
+            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerStopFailed"), e);
         }
     }
 
@@ -1047,14 +1027,12 @@ public class Connector extends LifecycleMBeanBase  {
         try {
             protocolHandler.destroy();
         } catch (Exception e) {
-            throw new LifecycleException(
-                    sm.getString("coyoteConnector.protocolHandlerDestroyFailed"), e);
+            throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerDestroyFailed"), e);
         }
 
         if (getService() != null) {
             getService().removeConnector(this);
         }
-
         super.destroyInternal();
     }
 

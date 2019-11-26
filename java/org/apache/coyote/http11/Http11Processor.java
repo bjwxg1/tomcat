@@ -73,7 +73,7 @@ public class Http11Processor extends AbstractProcessor {
     private static final StringManager sm = StringManager.getManager(Http11Processor.class);
 
 
-    //谢谢类型
+    //协议类型
     private final AbstractHttp11Protocol<?> protocol;
 
 

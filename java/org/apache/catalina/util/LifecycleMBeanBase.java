@@ -31,13 +31,11 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.res.StringManager;
 
-public abstract class LifecycleMBeanBase extends LifecycleBase
-        implements JmxEnabled {
+public abstract class LifecycleMBeanBase extends LifecycleBase implements JmxEnabled {
 
     private static final Log log = LogFactory.getLog(LifecycleMBeanBase.class);
 
-    private static final StringManager sm =
-        StringManager.getManager("org.apache.catalina.util");
+    private static final StringManager sm = StringManager.getManager("org.apache.catalina.util");
 
 
     /* Cache components of the MBean registration. */
@@ -56,7 +54,6 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
         // preRegister().
         if (oname == null) {
             mserver = Registry.getRegistry(null, null).getMBeanServer();
-
             oname = register(this, getObjectNameKeyProperties());
         }
     }
@@ -158,11 +155,9 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
             on = new ObjectName(name.toString());
             Registry.getRegistry(null, null).registerComponent(obj, on, null);
         } catch (MalformedObjectNameException e) {
-            log.warn(sm.getString("lifecycleMBeanBase.registerFail", obj, name),
-                    e);
+            log.warn(sm.getString("lifecycleMBeanBase.registerFail", obj, name), e);
         } catch (Exception e) {
-            log.warn(sm.getString("lifecycleMBeanBase.registerFail", obj, name),
-                    e);
+            log.warn(sm.getString("lifecycleMBeanBase.registerFail", obj, name), e);
         }
 
         return on;

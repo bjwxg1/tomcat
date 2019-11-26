@@ -35,26 +35,22 @@ import org.apache.tomcat.util.res.StringManager;
  * {@link Lifecycle#stop()}
  */
 public abstract class LifecycleBase implements Lifecycle {
-
     private static final Log log = LogFactory.getLog(LifecycleBase.class);
-
     private static final StringManager sm = StringManager.getManager(LifecycleBase.class);
-
 
     /**
      * The list of registered LifecycleListeners for event notifications.
      */
     private final List<LifecycleListener> lifecycleListeners = new CopyOnWriteArrayList<>();
 
-
     /**
      * The current state of the source component.
      */
+    //当前状态
     private volatile LifecycleState state = LifecycleState.NEW;
 
-
+    //是否向上抛出异常
     private boolean throwOnFailure = true;
-
 
     /**
      * Will a {@link LifecycleException} thrown by a sub-class during
@@ -69,7 +65,6 @@ public abstract class LifecycleBase implements Lifecycle {
         return throwOnFailure;
     }
 
-
     /**
      * Configure if a {@link LifecycleException} thrown by a sub-class during
      * {@link #initInternal()}, {@link #startInternal()},
@@ -83,7 +78,6 @@ public abstract class LifecycleBase implements Lifecycle {
         this.throwOnFailure = throwOnFailure;
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -92,7 +86,6 @@ public abstract class LifecycleBase implements Lifecycle {
         lifecycleListeners.add(listener);
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -100,7 +93,6 @@ public abstract class LifecycleBase implements Lifecycle {
     public LifecycleListener[] findLifecycleListeners() {
         return lifecycleListeners.toArray(new LifecycleListener[0]);
     }
-
 
     /**
      * {@inheritDoc}
@@ -124,9 +116,9 @@ public abstract class LifecycleBase implements Lifecycle {
         }
     }
 
-
     @Override
     public final synchronized void init() throws LifecycleException {
+        //非NEW状态不能调用Init
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
@@ -155,17 +147,13 @@ public abstract class LifecycleBase implements Lifecycle {
      */
     @Override
     public final synchronized void start() throws LifecycleException {
-
-        if (LifecycleState.STARTING_PREP.equals(state) || LifecycleState.STARTING.equals(state) ||
-                LifecycleState.STARTED.equals(state)) {
-
+        if (LifecycleState.STARTING_PREP.equals(state) || LifecycleState.STARTING.equals(state) || LifecycleState.STARTED.equals(state)) {
             if (log.isDebugEnabled()) {
                 Exception e = new LifecycleException();
                 log.debug(sm.getString("lifecycleBase.alreadyStarted", toString()), e);
             } else if (log.isInfoEnabled()) {
                 log.info(sm.getString("lifecycleBase.alreadyStarted", toString()));
             }
-
             return;
         }
 
@@ -173,8 +161,7 @@ public abstract class LifecycleBase implements Lifecycle {
             init();
         } else if (state.equals(LifecycleState.FAILED)) {
             stop();
-        } else if (!state.equals(LifecycleState.INITIALIZED) &&
-                !state.equals(LifecycleState.STOPPED)) {
+        } else if (!state.equals(LifecycleState.INITIALIZED) && !state.equals(LifecycleState.STOPPED)) {
             invalidTransition(Lifecycle.BEFORE_START_EVENT);
         }
 
@@ -221,17 +208,13 @@ public abstract class LifecycleBase implements Lifecycle {
      */
     @Override
     public final synchronized void stop() throws LifecycleException {
-
-        if (LifecycleState.STOPPING_PREP.equals(state) || LifecycleState.STOPPING.equals(state) ||
-                LifecycleState.STOPPED.equals(state)) {
-
+        if (LifecycleState.STOPPING_PREP.equals(state) || LifecycleState.STOPPING.equals(state) || LifecycleState.STOPPED.equals(state)) {
             if (log.isDebugEnabled()) {
                 Exception e = new LifecycleException();
                 log.debug(sm.getString("lifecycleBase.alreadyStopped", toString()), e);
             } else if (log.isInfoEnabled()) {
                 log.info(sm.getString("lifecycleBase.alreadyStopped", toString()));
             }
-
             return;
         }
 
@@ -255,7 +238,6 @@ public abstract class LifecycleBase implements Lifecycle {
             }
 
             stopInternal();
-
             // Shouldn't be necessary but acts as a check that sub-classes are
             // doing what they are supposed to.
             if (!state.equals(LifecycleState.STOPPING) && !state.equals(LifecycleState.FAILED)) {
@@ -307,7 +289,6 @@ public abstract class LifecycleBase implements Lifecycle {
                 // multiple calls are made to destroy()
                 log.info(sm.getString("lifecycleBase.alreadyDestroyed", toString()));
             }
-
             return;
         }
 
@@ -377,15 +358,12 @@ public abstract class LifecycleBase implements Lifecycle {
      * @param data  The data to pass to the associated {@link Lifecycle} event
      * @throws LifecycleException when attempting to set an invalid state
      */
-    protected synchronized void setState(LifecycleState state, Object data)
-            throws LifecycleException {
+    protected synchronized void setState(LifecycleState state, Object data) throws LifecycleException {
         setStateInternal(state, data, true);
     }
 
 
-    private synchronized void setStateInternal(LifecycleState state, Object data, boolean check)
-            throws LifecycleException {
-
+    private synchronized void setStateInternal(LifecycleState state, Object data, boolean check) throws LifecycleException {
         if (log.isDebugEnabled()) {
             log.debug(sm.getString("lifecycleBase.setState", this, state));
         }
@@ -405,13 +383,9 @@ public abstract class LifecycleBase implements Lifecycle {
             // startInternal() permits STARTING_PREP to STARTING
             // stopInternal() permits STOPPING_PREP to STOPPING and FAILED to
             // STOPPING
-            if (!(state == LifecycleState.FAILED ||
-                    (this.state == LifecycleState.STARTING_PREP &&
-                            state == LifecycleState.STARTING) ||
-                    (this.state == LifecycleState.STOPPING_PREP &&
-                            state == LifecycleState.STOPPING) ||
-                    (this.state == LifecycleState.FAILED &&
-                            state == LifecycleState.STOPPING))) {
+            if (!(state == LifecycleState.FAILED || (this.state == LifecycleState.STARTING_PREP && state == LifecycleState.STARTING)
+                    || (this.state == LifecycleState.STOPPING_PREP && state == LifecycleState.STOPPING)
+                    || (this.state == LifecycleState.FAILED && state == LifecycleState.STOPPING))) {
                 // No other transition permitted
                 invalidTransition(state.name());
             }

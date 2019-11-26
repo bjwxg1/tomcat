@@ -76,18 +76,15 @@ import org.apache.juli.logging.Log;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  */
+//Container接口，负责执行Request请求，并返回响应。具体的实现类会有Pipeline【里面包含Values（负责执行响应的处理）】
 public interface Container extends Lifecycle {
 
-
     // ----------------------------------------------------- Manifest Constants
-
-
     /**
      * The ContainerEvent event type sent when a child container is added
      * by <code>addChild()</code>.
      */
     public static final String ADD_CHILD_EVENT = "addChild";
-
 
     /**
      * The ContainerEvent event type sent when a valve is added
@@ -95,20 +92,17 @@ public interface Container extends Lifecycle {
      */
     public static final String ADD_VALVE_EVENT = "addValve";
 
-
     /**
      * The ContainerEvent event type sent when a child container is removed
      * by <code>removeChild()</code>.
      */
     public static final String REMOVE_CHILD_EVENT = "removeChild";
 
-
     /**
      * The ContainerEvent event type sent when a valve is removed
      * by <code>removeValve()</code>, if this Container supports pipelines.
      */
     public static final String REMOVE_VALVE_EVENT = "removeValve";
-
 
     // ------------------------------------------------------------- Properties
 
@@ -144,7 +138,6 @@ public interface Container extends Lifecycle {
      * @return The JMX domain name
      */
     public String getDomain();
-
 
     /**
      * Calculate the key properties string to be added to an object's

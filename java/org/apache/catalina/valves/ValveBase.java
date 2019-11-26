@@ -53,24 +53,20 @@ public abstract class ValveBase extends LifecycleMBeanBase implements Contained,
 
 
     //------------------------------------------------------ Instance Variables
-
     /**
      * Does this valve support Servlet 3+ async requests?
      */
     protected boolean asyncSupported;
-
 
     /**
      * The Container whose pipeline this Valve is a component of.
      */
     protected Container container = null;
 
-
     /**
      * Container log
      */
     protected Log containerLog = null;
-
 
     /**
      * The next Valve in the pipeline this Valve is a component of.
@@ -87,7 +83,6 @@ public abstract class ValveBase extends LifecycleMBeanBase implements Contained,
     public Container getContainer() {
         return container;
     }
-
 
     /**
      * Set the Container with which this Valve is associated, if any.
