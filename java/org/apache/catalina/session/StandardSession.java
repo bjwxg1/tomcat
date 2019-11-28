@@ -119,32 +119,25 @@ public class StandardSession implements HttpSession, Session, Serializable {
      * @param manager The manager with which this Session is associated
      */
     public StandardSession(Manager manager) {
-
         super();
         this.manager = manager;
-
         // Initialize access count
         if (ACTIVITY_CHECK) {
             accessCount = new AtomicInteger();
         }
-
     }
 
 
     // ----------------------------------------------------- Instance Variables
-
-
     /**
      * Type array.
      */
     protected static final String EMPTY_ARRAY[] = new String[0];
 
-
     /**
      * The collection of user data attributes associated with this Session.
      */
     protected ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
-
 
     /**
      * The authentication type used to authenticate our cached Principal,
@@ -153,13 +146,11 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected transient String authType = null;
 
-
     /**
      * The time this session was created, in milliseconds since midnight,
      * January 1, 1970 GMT.
      */
     protected long creationTime = 0L;
-
 
     /**
      * We are currently processing a session expiration, so bypass
@@ -168,37 +159,31 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected transient volatile boolean expiring = false;
 
-
     /**
      * The facade associated with this session.  NOTE:  This value is not
      * included in the serialized version of this object.
      */
     protected transient StandardSessionFacade facade = null;
 
-
     /**
      * The session identifier of this Session.
      */
     protected String id = null;
-
 
     /**
      * The last accessed time for this Session.
      */
     protected volatile long lastAccessedTime = creationTime;
 
-
     /**
      * The session event listeners for this Session.
      */
     protected transient ArrayList<SessionListener> listeners = new ArrayList<>();
 
-
     /**
      * The Manager with which this Session is associated.
      */
     protected transient Manager manager = null;
-
 
     /**
      * The maximum time interval, in seconds, between client requests before
@@ -207,12 +192,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected volatile int maxInactiveInterval = -1;
 
-
     /**
      * Flag indicating whether this session is new or not.
      */
     protected volatile boolean isNew = false;
-
 
     /**
      * Flag indicating whether this session is valid or not.
@@ -227,7 +210,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected transient Map<String, Object> notes = new Hashtable<>();
 
-
     /**
      * The authenticated Principal associated with this session, if any.
      * <b>IMPLEMENTATION NOTE:</b>  This object is <i>not</i> saved and
@@ -235,27 +217,22 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected transient Principal principal = null;
 
-
     /**
      * The string manager for this package.
      */
     protected static final StringManager sm = StringManager.getManager(StandardSession.class);
 
-
     /**
      * The HTTP session context associated with this session.
      */
     @Deprecated
-    protected static volatile
-            javax.servlet.http.HttpSessionContext sessionContext = null;
-
+    protected static volatile javax.servlet.http.HttpSessionContext sessionContext = null;
 
     /**
      * The property change support for this component.  NOTE:  This value
      * is not included in the serialized version of this object.
      */
-    protected final transient PropertyChangeSupport support =
-        new PropertyChangeSupport(this);
+    protected final transient PropertyChangeSupport support = new PropertyChangeSupport(this);
 
 
     /**
@@ -263,15 +240,12 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     protected volatile long thisAccessedTime = creationTime;
 
-
     /**
      * The access count for this session.
      */
     protected transient AtomicInteger accessCount = null;
 
-
     // ----------------------------------------------------- Session Properties
-
 
     /**
      * Return the authentication type used to authenticate our cached
@@ -305,11 +279,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void setCreationTime(long time) {
-
         this.creationTime = time;
         this.lastAccessedTime = time;
         this.thisAccessedTime = time;
-
     }
 
 
@@ -347,12 +319,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void setId(String id, boolean notify) {
-
         if ((this.id != null) && (manager != null))
             manager.remove(this);
 
         this.id = id;
-
         if (manager != null)
             manager.add(this);
 
@@ -367,7 +337,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      *
      */
     public void tellNew() {
-
         // Notify interested session event listeners
         fireSessionEvent(Session.SESSION_CREATED_EVENT, null);
 
@@ -375,28 +344,23 @@ public class StandardSession implements HttpSession, Session, Serializable {
         Context context = manager.getContext();
         Object listeners[] = context.getApplicationLifecycleListeners();
         if (listeners != null && listeners.length > 0) {
-            HttpSessionEvent event =
-                new HttpSessionEvent(getSession());
+            HttpSessionEvent event = new HttpSessionEvent(getSession());
             for (int i = 0; i < listeners.length; i++) {
                 if (!(listeners[i] instanceof HttpSessionListener))
                     continue;
-                HttpSessionListener listener =
-                    (HttpSessionListener) listeners[i];
+                HttpSessionListener listener = (HttpSessionListener) listeners[i];
                 try {
-                    context.fireContainerEvent("beforeSessionCreated",
-                            listener);
+                    context.fireContainerEvent("beforeSessionCreated", listener);
                     listener.sessionCreated(event);
                     context.fireContainerEvent("afterSessionCreated", listener);
                 } catch (Throwable t) {
                     ExceptionUtils.handleThrowable(t);
                     try {
-                        context.fireContainerEvent("afterSessionCreated",
-                                listener);
+                        context.fireContainerEvent("afterSessionCreated", listener);
                     } catch (Exception e) {
                         // Ignore
                     }
-                    manager.getContext().getLogger().error
-                        (sm.getString("standardSession.sessionEvent"), t);
+                    manager.getContext().getLogger().error(sm.getString("standardSession.sessionEvent"), t);
                 }
             }
         }
@@ -414,33 +378,26 @@ public class StandardSession implements HttpSession, Session, Serializable {
      *        be notified that session ID has been changed?
      */
     @Override
-    public void tellChangedSessionId(String newId, String oldId,
-            boolean notifySessionListeners, boolean notifyContainerListeners) {
+    public void tellChangedSessionId(String newId, String oldId, boolean notifySessionListeners, boolean notifyContainerListeners) {
         Context context = manager.getContext();
          // notify ContainerListeners
         if (notifyContainerListeners) {
-            context.fireContainerEvent(Context.CHANGE_SESSION_ID_EVENT,
-                    new String[] {oldId, newId});
+            context.fireContainerEvent(Context.CHANGE_SESSION_ID_EVENT, new String[] {oldId, newId});
         }
 
         // notify HttpSessionIdListener
         if (notifySessionListeners) {
             Object listeners[] = context.getApplicationEventListeners();
             if (listeners != null && listeners.length > 0) {
-                HttpSessionEvent event =
-                    new HttpSessionEvent(getSession());
-
+                HttpSessionEvent event = new HttpSessionEvent(getSession());
                 for(Object listener : listeners) {
                     if (!(listener instanceof HttpSessionIdListener))
                         continue;
-
-                    HttpSessionIdListener idListener =
-                        (HttpSessionIdListener)listener;
+                    HttpSessionIdListener idListener = (HttpSessionIdListener)listener;
                     try {
                         idListener.sessionIdChanged(event, oldId);
                     } catch (Throwable t) {
-                        manager.getContext().getLogger().error
-                            (sm.getString("standardSession.sessionEvent"), t);
+                        manager.getContext().getLogger().error(sm.getString("standardSession.sessionEvent"), t);
                     }
                 }
             }
@@ -457,12 +414,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public long getThisAccessedTime() {
-
         if (!isValidInternal()) {
-            throw new IllegalStateException
-                (sm.getString("standardSession.getThisAccessedTime.ise"));
+            throw new IllegalStateException(sm.getString("standardSession.getThisAccessedTime.ise"));
         }
-
         return this.thisAccessedTime;
     }
 
@@ -484,12 +438,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public long getLastAccessedTime() {
-
         if (!isValidInternal()) {
-            throw new IllegalStateException
-                (sm.getString("standardSession.getLastAccessedTime.ise"));
+            throw new IllegalStateException(sm.getString("standardSession.getLastAccessedTime.ise"));
         }
-
         return this.lastAccessedTime;
     }
 
@@ -507,12 +458,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public long getIdleTime() {
-
         if (!isValidInternal()) {
-            throw new IllegalStateException
-                (sm.getString("standardSession.getIdleTime.ise"));
+            throw new IllegalStateException(sm.getString("standardSession.getIdleTime.ise"));
         }
-
         return getIdleTimeInternal();
     }
 
@@ -610,7 +558,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void setPrincipal(Principal principal) {
-
         Principal oldPrincipal = this.principal;
         this.principal = principal;
         support.firePropertyChange("principal", oldPrincipal, this.principal);
@@ -624,7 +571,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public HttpSession getSession() {
-
         if (facade == null){
             if (SecurityUtil.isPackageProtectionEnabled()){
                 final StandardSession fsession = this;
@@ -640,7 +586,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
             }
         }
         return (facade);
-
     }
 
 
@@ -649,7 +594,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public boolean isValid() {
-
         if (!this.isValid) {
             return false;
         }
@@ -668,7 +612,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 expire(true);
             }
         }
-
         return this.isValid;
     }
 
@@ -694,13 +637,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void access() {
-
         this.thisAccessedTime = System.currentTimeMillis();
-
         if (ACTIVITY_CHECK) {
             accessCount.incrementAndGet();
         }
-
     }
 
 
@@ -709,9 +649,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void endAccess() {
-
         isNew = false;
-
         /**
          * The servlet spec mandates to ignore request handling time
          * in lastAccessedTime.
@@ -727,7 +665,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
         if (ACTIVITY_CHECK) {
             accessCount.decrementAndGet();
         }
-
     }
 
 
@@ -736,9 +673,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void addSessionListener(SessionListener listener) {
-
         listeners.add(listener);
-
     }
 
 
@@ -748,9 +683,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void expire() {
-
         expire(true);
-
     }
 
 
@@ -762,7 +695,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      *  this session?
      */
     public void expire(boolean notify) {
-
         // Check to see if session has already been invalidated.
         // Do not check expiring at this point as expire should not return until
         // isValid is false
@@ -796,30 +728,24 @@ public class StandardSession implements HttpSession, Session, Serializable {
                     oldContextClassLoader = context.bind(Globals.IS_SECURITY_ENABLED, null);
                     Object listeners[] = context.getApplicationLifecycleListeners();
                     if (listeners != null && listeners.length > 0) {
-                        HttpSessionEvent event =
-                            new HttpSessionEvent(getSession());
+                        HttpSessionEvent event = new HttpSessionEvent(getSession());
                         for (int i = 0; i < listeners.length; i++) {
                             int j = (listeners.length - 1) - i;
                             if (!(listeners[j] instanceof HttpSessionListener))
                                 continue;
-                            HttpSessionListener listener =
-                                (HttpSessionListener) listeners[j];
+                            HttpSessionListener listener = (HttpSessionListener) listeners[j];
                             try {
-                                context.fireContainerEvent("beforeSessionDestroyed",
-                                        listener);
+                                context.fireContainerEvent("beforeSessionDestroyed", listener);
                                 listener.sessionDestroyed(event);
-                                context.fireContainerEvent("afterSessionDestroyed",
-                                        listener);
+                                context.fireContainerEvent("afterSessionDestroyed", listener);
                             } catch (Throwable t) {
                                 ExceptionUtils.handleThrowable(t);
                                 try {
-                                    context.fireContainerEvent(
-                                            "afterSessionDestroyed", listener);
+                                    context.fireContainerEvent("afterSessionDestroyed", listener);
                                 } catch (Exception e) {
                                     // Ignore
                                 }
-                                manager.getContext().getLogger().error
-                                    (sm.getString("standardSession.sessionEvent"), t);
+                                manager.getContext().getLogger().error(sm.getString("standardSession.sessionEvent"), t);
                             }
                         }
                     }
@@ -834,7 +760,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
 
             // Remove this session from our manager's active sessions
             manager.remove(this, true);
-
             // Notify interested session event listeners
             if (notify) {
                 fireSessionEvent(Session.SESSION_DESTROYED_EVENT, null);
@@ -846,9 +771,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 try {
                     gp.logout();
                 } catch (Exception e) {
-                    manager.getContext().getLogger().error(
-                            sm.getString("standardSession.logoutfail"),
-                            e);
+                    manager.getContext().getLogger().error(sm.getString("standardSession.logoutfail"), e);
                 }
             }
 
@@ -868,7 +791,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 context.unbind(Globals.IS_SECURITY_ENABLED, oldContextClassLoader);
             }
         }
-
     }
 
 
@@ -877,7 +799,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
      * this session.
      */
     public void passivate() {
-
         // Notify interested session event listeners
         fireSessionEvent(Session.SESSION_PASSIVATED_EVENT, null);
 
@@ -890,16 +811,13 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 if (event == null)
                     event = new HttpSessionEvent(getSession());
                 try {
-                    ((HttpSessionActivationListener)attribute)
-                        .sessionWillPassivate(event);
+                    ((HttpSessionActivationListener)attribute).sessionWillPassivate(event);
                 } catch (Throwable t) {
                     ExceptionUtils.handleThrowable(t);
-                    manager.getContext().getLogger().error
-                        (sm.getString("standardSession.attributeEvent"), t);
+                    manager.getContext().getLogger().error(sm.getString("standardSession.attributeEvent"), t);
                 }
             }
         }
-
     }
 
 
@@ -926,16 +844,13 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 if (event == null)
                     event = new HttpSessionEvent(getSession());
                 try {
-                    ((HttpSessionActivationListener)attribute)
-                        .sessionDidActivate(event);
+                    ((HttpSessionActivationListener)attribute).sessionDidActivate(event);
                 } catch (Throwable t) {
                     ExceptionUtils.handleThrowable(t);
-                    manager.getContext().getLogger().error
-                        (sm.getString("standardSession.attributeEvent"), t);
+                    manager.getContext().getLogger().error(sm.getString("standardSession.attributeEvent"), t);
                 }
             }
         }
-
     }
 
 
@@ -981,7 +896,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
         isNew = false;
         isValid = false;
         manager = null;
-
     }
 
 
@@ -993,9 +907,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void removeNote(String name) {
-
         notes.remove(name);
-
     }
 
 
@@ -1004,9 +916,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void removeSessionListener(SessionListener listener) {
-
         listeners.remove(listener);
-
     }
 
 
@@ -1019,9 +929,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void setNote(String name, Object value) {
-
         notes.put(name, value);
-
     }
 
 
@@ -1051,11 +959,8 @@ public class StandardSession implements HttpSession, Session, Serializable {
      * @exception ClassNotFoundException if an unknown class is specified
      * @exception IOException if an input/output error occurs
      */
-    public void readObjectData(ObjectInputStream stream)
-        throws ClassNotFoundException, IOException {
-
+    public void readObjectData(ObjectInputStream stream) throws ClassNotFoundException, IOException {
         doReadObject(stream);
-
     }
 
 
@@ -1070,9 +975,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     public void writeObjectData(ObjectOutputStream stream)
         throws IOException {
-
         doWriteObject(stream);
-
     }
 
 
@@ -1089,9 +992,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     public long getCreationTime() {
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.getCreationTime.ise"));
-
+            throw new IllegalStateException(sm.getString("standardSession.getCreationTime.ise"));
         return this.creationTime;
     }
 
@@ -1150,11 +1051,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     public Object getAttribute(String name) {
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.getAttribute.ise"));
+            throw new IllegalStateException(sm.getString("standardSession.getAttribute.ise"));
 
         if (name == null) return null;
-
         return attributes.get(name);
     }
 
@@ -1168,10 +1067,8 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public Enumeration<String> getAttributeNames() {
-
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.getAttributeNames.ise"));
+            throw new IllegalStateException(sm.getString("standardSession.getAttributeNames.ise"));
 
         Set<String> names = new HashSet<>();
         names.addAll(attributes.keySet());
@@ -1194,9 +1091,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     @Deprecated
     public Object getValue(String name) {
-
         return getAttribute(name);
-
     }
 
 
@@ -1214,9 +1109,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Deprecated
     public String[] getValueNames() {
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.getValueNames.ise"));
-
+            throw new IllegalStateException(sm.getString("standardSession.getValueNames.ise"));
         return keys();
     }
 
@@ -1229,14 +1122,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void invalidate() {
-
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.invalidate.ise"));
-
+            throw new IllegalStateException(sm.getString("standardSession.invalidate.ise"));
         // Cause this session to expire
         expire();
-
     }
 
 
@@ -1253,9 +1142,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     public boolean isNew() {
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.isNew.ise"));
-
+            throw new IllegalStateException(sm.getString("standardSession.isNew.ise"));
         return this.isNew;
     }
 
@@ -1281,9 +1168,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     @Deprecated
     public void putValue(String name, Object value) {
-
         setAttribute(name, value);
-
     }
 
 
@@ -1303,9 +1188,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
     @Override
     public void removeAttribute(String name) {
-
         removeAttribute(name, true);
-
     }
 
 
@@ -1326,14 +1209,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      *  invalidated session
      */
     public void removeAttribute(String name, boolean notify) {
-
         // Validate our current state
         if (!isValidInternal())
-            throw new IllegalStateException
-                (sm.getString("standardSession.removeAttribute.ise"));
-
+            throw new IllegalStateException(sm.getString("standardSession.removeAttribute.ise"));
         removeAttributeInternal(name, notify);
-
     }
 
 
@@ -1357,9 +1236,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
     @Override
     @Deprecated
     public void removeValue(String name) {
-
         removeAttribute(name);
-
     }
 
 
@@ -1403,11 +1280,9 @@ public class StandardSession implements HttpSession, Session, Serializable {
      */
 
     public void setAttribute(String name, Object value, boolean notify) {
-
         // Name cannot be null
         if (name == null)
-            throw new IllegalArgumentException
-                (sm.getString("standardSession.setAttribute.namenull"));
+            throw new IllegalArgumentException(sm.getString("standardSession.setAttribute.namenull"));
 
         // Null value is the same as removeAttribute()
         if (value == null) {
@@ -1417,17 +1292,14 @@ public class StandardSession implements HttpSession, Session, Serializable {
 
         // Validate our current state
         if (!isValidInternal()) {
-            throw new IllegalStateException(sm.getString(
-                    "standardSession.setAttribute.ise", getIdInternal()));
+            throw new IllegalStateException(sm.getString("standardSession.setAttribute.ise", getIdInternal()));
         }
         if ((manager != null) && manager.getContext().getDistributable() &&
                 !isAttributeDistributable(name, value) && !exclude(name, value)) {
-            throw new IllegalArgumentException(sm.getString(
-                    "standardSession.setAttribute.iae", name));
+            throw new IllegalArgumentException(sm.getString("standardSession.setAttribute.iae", name));
         }
         // Construct an event with the new value
         HttpSessionBindingEvent event = null;
-
         // Call the valueBound() method if necessary
         if (notify && value instanceof HttpSessionBindingListener) {
             // Don't call any notification if replacing with the same value
@@ -1437,21 +1309,16 @@ public class StandardSession implements HttpSession, Session, Serializable {
                 try {
                     ((HttpSessionBindingListener) value).valueBound(event);
                 } catch (Throwable t){
-                    manager.getContext().getLogger().error
-                    (sm.getString("standardSession.bindingEvent"), t);
+                    manager.getContext().getLogger().error(sm.getString("standardSession.bindingEvent"), t);
                 }
             }
         }
-
         // Replace or add this attribute
         Object unbound = attributes.put(name, value);
-
         // Call the valueUnbound() method if necessary
-        if (notify && (unbound != null) && (unbound != value) &&
-            (unbound instanceof HttpSessionBindingListener)) {
+        if (notify && (unbound != null) && (unbound != value) && (unbound instanceof HttpSessionBindingListener)) {
             try {
-                ((HttpSessionBindingListener) unbound).valueUnbound
-                    (new HttpSessionBindingEvent(getSession(), name));
+                ((HttpSessionBindingListener) unbound).valueUnbound(new HttpSessionBindingEvent(getSession(), name));
             } catch (Throwable t) {
                 ExceptionUtils.handleThrowable(t);
                 manager.getContext().getLogger().error
@@ -1740,7 +1607,6 @@ public class StandardSession implements HttpSession, Session, Serializable {
         for (int i = 0; i < list.length; i++){
             (list[i]).sessionEvent(event);
         }
-
     }
 
 
@@ -1750,9 +1616,7 @@ public class StandardSession implements HttpSession, Session, Serializable {
      * zero-length array is returned.
      */
     protected String[] keys() {
-
         return attributes.keySet().toArray(EMPTY_ARRAY);
-
     }
 
 
@@ -1770,13 +1634,10 @@ public class StandardSession implements HttpSession, Session, Serializable {
      *  attribute is being removed?
      */
     protected void removeAttributeInternal(String name, boolean notify) {
-
         // Avoid NPE
         if (name == null) return;
-
         // Remove this attribute from our collection
         Object value = attributes.remove(name);
-
         // Do we need to do valueUnbound() and attributeRemoved() notification?
         if (!notify || (value == null)) {
             return;
@@ -1797,34 +1658,25 @@ public class StandardSession implements HttpSession, Session, Serializable {
         for (int i = 0; i < listeners.length; i++) {
             if (!(listeners[i] instanceof HttpSessionAttributeListener))
                 continue;
-            HttpSessionAttributeListener listener =
-                (HttpSessionAttributeListener) listeners[i];
+            HttpSessionAttributeListener listener = (HttpSessionAttributeListener) listeners[i];
             try {
-                context.fireContainerEvent("beforeSessionAttributeRemoved",
-                        listener);
+                context.fireContainerEvent("beforeSessionAttributeRemoved", listener);
                 if (event == null) {
-                    event = new HttpSessionBindingEvent
-                        (getSession(), name, value);
+                    event = new HttpSessionBindingEvent(getSession(), name, value);
                 }
                 listener.attributeRemoved(event);
-                context.fireContainerEvent("afterSessionAttributeRemoved",
-                        listener);
+                context.fireContainerEvent("afterSessionAttributeRemoved", listener);
             } catch (Throwable t) {
                 ExceptionUtils.handleThrowable(t);
                 try {
-                    context.fireContainerEvent("afterSessionAttributeRemoved",
-                            listener);
+                    context.fireContainerEvent("afterSessionAttributeRemoved", listener);
                 } catch (Exception e) {
                     // Ignore
                 }
-                manager.getContext().getLogger().error
-                    (sm.getString("standardSession.attributeEvent"), t);
+                manager.getContext().getLogger().error(sm.getString("standardSession.attributeEvent"), t);
             }
         }
-
     }
-
-
 }
 
 
@@ -1843,11 +1695,8 @@ public class StandardSession implements HttpSession, Session, Serializable {
  */
 
 @Deprecated
-final class StandardSessionContext
-        implements javax.servlet.http.HttpSessionContext {
-
+final class StandardSessionContext implements javax.servlet.http.HttpSessionContext {
     private static final List<String> emptyString = Collections.emptyList();
-
     /**
      * Return the session identifiers of all sessions defined
      * within this context.

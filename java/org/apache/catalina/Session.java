@@ -36,25 +36,20 @@ public interface Session {
 
 
     // ----------------------------------------------------- Manifest Constants
-
-
     /**
      * The SessionEvent event type when a session is created.
      */
     public static final String SESSION_CREATED_EVENT = "createSession";
-
 
     /**
      * The SessionEvent event type when a session is destroyed.
      */
     public static final String SESSION_DESTROYED_EVENT = "destroySession";
 
-
     /**
      * The SessionEvent event type when a session is activated.
      */
     public static final String SESSION_ACTIVATED_EVENT = "activateSession";
-
 
     /**
      * The SessionEvent event type when a session is passivated.
@@ -88,8 +83,7 @@ public interface Session {
 
 
     /**
-     * @return the creation time for this session, bypassing the session validity
-     * checks.
+     * @return the creation time for this session, bypassing the session validity checks.
      */
     public long getCreationTimeInternal();
 

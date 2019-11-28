@@ -35,8 +35,7 @@ import org.apache.tomcat.util.res.StringManager;
 /**
  *@version 1.0
  */
-public class BackupManager extends ClusterManagerBase
-        implements MapOwner, DistributedManager {
+public class BackupManager extends ClusterManagerBase implements MapOwner, DistributedManager {
 
     private final Log log = LogFactory.getLog(BackupManager.class); // must not be static
 
@@ -139,9 +138,7 @@ public class BackupManager extends ClusterManagerBase
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
-
         super.startInternal();
-
         try {
             if (cluster == null) throw new LifecycleException(sm.getString("backupManager.noCluster", getName()));
             LazyReplicatedMap<String,Session> map = new LazyReplicatedMap<>(

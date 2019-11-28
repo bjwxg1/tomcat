@@ -29,8 +29,7 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
 
-public abstract class SessionIdGeneratorBase extends LifecycleBase
-        implements SessionIdGenerator {
+public abstract class SessionIdGeneratorBase extends LifecycleBase implements SessionIdGenerator {
 
     private final Log log = LogFactory.getLog(SessionIdGeneratorBase.class); // must not be static
 

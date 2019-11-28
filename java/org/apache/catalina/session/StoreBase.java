@@ -142,6 +142,7 @@ public abstract class StoreBase extends LifecycleBase implements Store {
         }
 
         try {
+            //获取Store中存储的、过期的 session的key
             keys = expiredKeys();
         } catch (IOException e) {
             manager.getContext().getLogger().error("Error getting keys", e);
@@ -247,7 +248,6 @@ public abstract class StoreBase extends LifecycleBase implements Store {
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
-
         setState(LifecycleState.STARTING);
     }
 
@@ -261,7 +261,6 @@ public abstract class StoreBase extends LifecycleBase implements Store {
      */
     @Override
     protected synchronized void stopInternal() throws LifecycleException {
-
         setState(LifecycleState.STOPPING);
     }
 

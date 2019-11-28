@@ -62,8 +62,7 @@ import org.apache.tomcat.util.res.StringManager;
  * @author Craig R. McClanahan
  * @author Peter Rossbach
  */
-public class ReplicationValve
-    extends ValveBase implements ClusterValve {
+public class ReplicationValve extends ValveBase implements ClusterValve {
 
     private static final Log log = LogFactory.getLog(ReplicationValve.class);
 
@@ -72,8 +71,7 @@ public class ReplicationValve
     /**
      * The StringManager for this package.
      */
-    protected static final StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected static final StringManager sm = StringManager.getManager(Constants.Package);
 
     private CatalinaCluster cluster = null ;
 
@@ -85,8 +83,7 @@ public class ReplicationValve
     /**
      * crossContext session container
      */
-    protected final ThreadLocal<ArrayList<DeltaSession>> crossContextSessions =
-        new ThreadLocal<>() ;
+    protected final ThreadLocal<ArrayList<DeltaSession>> crossContextSessions = new ThreadLocal<>() ;
 
     /**
      * doProcessingStats (default = off)

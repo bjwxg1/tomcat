@@ -260,8 +260,7 @@ public final class FileStore extends StoreBase {
             return;
         }
         if (manager.getContext().getLogger().isDebugEnabled()) {
-            manager.getContext().getLogger().debug(sm.getString(getStoreName() + ".removing",
-                             id, file.getAbsolutePath()));
+            manager.getContext().getLogger().debug(sm.getString(getStoreName() + ".removing", id, file.getAbsolutePath()));
         }
         file.delete();
     }

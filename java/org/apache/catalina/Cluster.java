@@ -29,6 +29,7 @@ package org.apache.catalina;
  * @author Bip Thelin
  * @author Remy Maucherat
  */
+//TOMCAT 集群
 public interface Cluster {
 
     // ------------------------------------------------------------- Properties

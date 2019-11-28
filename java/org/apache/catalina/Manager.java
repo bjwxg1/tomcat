@@ -37,6 +37,7 @@ import java.io.IOException;
  *
  * @author Craig R. McClanahan
  */
+//Session管理器的接口，提供基础的Session关联接口
 public interface Manager {
 
     // ------------------------------------------------------------- Properties

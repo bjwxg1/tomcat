@@ -41,6 +41,7 @@ public abstract class ClusterManagerBase extends ManagerBase implements ClusterM
     /**
      * A reference to the cluster
      */
+    //Catalina 集群信息
     protected CatalinaCluster cluster = null;
 
     /**
@@ -184,8 +185,8 @@ public abstract class ClusterManagerBase extends ManagerBase implements ClusterM
                 Valve[] valves = cluster.getValves();
                 if(valves != null && valves.length > 0) {
                     for(int i=0; replicationValve == null && i < valves.length ; i++ ){
-                        if(valves[i] instanceof ReplicationValve) replicationValve =
-                                (ReplicationValve)valves[i] ;
+                        if(valves[i] instanceof ReplicationValve)
+                            replicationValve = (ReplicationValve)valves[i] ;
                     }//for
 
                     if(replicationValve == null && log.isDebugEnabled()) {

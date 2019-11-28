@@ -37,6 +37,7 @@ public interface CatalinaCluster extends Cluster {
      * Sends a message to all the members in the cluster
      * @param msg ClusterMessage
      */
+    //发送消息到集群中所有得成员
     public void send(ClusterMessage msg);
 
     /**
@@ -45,6 +46,7 @@ public interface CatalinaCluster extends Cluster {
      * @param msg ClusterMessage
      * @param dest Member
      */
+    //发送消息到集群中某个成员
     public void send(ClusterMessage msg, Member dest);
 
     /**
@@ -55,6 +57,7 @@ public interface CatalinaCluster extends Cluster {
     /**
      * @return an array containing all the members currently participating in the cluster.
      */
+    //获取集群中所有成员
     public Member[] getMembers();
 
     /**

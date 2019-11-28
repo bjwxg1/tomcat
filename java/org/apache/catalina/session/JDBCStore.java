@@ -233,8 +233,7 @@ public class JDBCStore extends StoreBase {
     public void setDriverName(String driverName) {
         String oldDriverName = this.driverName;
         this.driverName = driverName;
-        support.firePropertyChange("driverName",
-                oldDriverName,
+        support.firePropertyChange("driverName", oldDriverName,
                 this.driverName);
         this.driverName = driverName;
     }
@@ -505,18 +504,14 @@ public class JDBCStore extends StoreBase {
         synchronized (this) {
             int numberOfTries = 2;
             while (numberOfTries > 0) {
-
                 Connection _conn = getConnection();
                 if (_conn == null) {
                     return new String[0];
                 }
                 try {
-
-                    String keysSql = "SELECT " + sessionIdCol + " FROM "
-                            + sessionTable + " WHERE " + sessionAppCol + " = ?";
+                    String keysSql = "SELECT " + sessionIdCol + " FROM " + sessionTable + " WHERE " + sessionAppCol + " = ?";
                     if (expiredOnly) {
-                        keysSql += " AND (" + sessionLastAccessedCol + " + "
-                                + sessionMaxInactiveCol + " * 1000 < ?)";
+                        keysSql += " AND (" + sessionLastAccessedCol + " + " + sessionMaxInactiveCol + " * 1000 < ?)";
                     }
                     try (PreparedStatement preparedKeysSql = _conn.prepareStatement(keysSql)) {
                         preparedKeysSql.setString(1, getName());
@@ -562,21 +557,17 @@ public class JDBCStore extends StoreBase {
     @Override
     public int getSize() throws IOException {
         int size = 0;
-
         synchronized (this) {
             int numberOfTries = 2;
             while (numberOfTries > 0) {
                 Connection _conn = getConnection();
-
                 if (_conn == null) {
                     return size;
                 }
 
                 try {
                     if (preparedSizeSql == null) {
-                        String sizeSql = "SELECT COUNT(" + sessionIdCol
-                                + ") FROM " + sessionTable + " WHERE "
-                                + sessionAppCol + " = ?";
+                        String sizeSql = "SELECT COUNT(" + sessionIdCol + ") FROM " + sessionTable + " WHERE " + sessionAppCol + " = ?";
                         preparedSizeSql = _conn.prepareStatement(sizeSql);
                     }
 
@@ -639,11 +630,9 @@ public class JDBCStore extends StoreBase {
                     preparedLoadSql.setString(2, getName());
                     try (ResultSet rst = preparedLoadSql.executeQuery()) {
                         if (rst.next()) {
-                            try (ObjectInputStream ois =
-                                    getObjectInputStream(rst.getBinaryStream(2))) {
+                            try (ObjectInputStream ois = getObjectInputStream(rst.getBinaryStream(2))) {
                                 if (contextLog.isDebugEnabled()) {
-                                    contextLog.debug(sm.getString(
-                                            getStoreName() + ".loading", id, sessionTable));
+                                    contextLog.debug(sm.getString(getStoreName() + ".loading", id, sessionTable));
                                 }
 
                                 _session = (StandardSession) manager.createEmptySession();
@@ -667,7 +656,6 @@ public class JDBCStore extends StoreBase {
                 numberOfTries--;
             }
         }
-
         return _session;
     }
 
@@ -682,7 +670,6 @@ public class JDBCStore extends StoreBase {
      */
     @Override
     public void remove(String id) throws IOException {
-
         synchronized (this) {
             int numberOfTries = 2;
             while (numberOfTries > 0) {
@@ -1027,7 +1014,6 @@ public class JDBCStore extends StoreBase {
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
-
         if (dataSourceName == null) {
             // If not using a connection pool, open a connection to the database
             this.dbConnection = getConnection();
@@ -1045,9 +1031,7 @@ public class JDBCStore extends StoreBase {
      */
     @Override
     protected synchronized void stopInternal() throws LifecycleException {
-
         super.stopInternal();
-
         // Close and release everything associated with our db.
         if (dbConnection != null) {
             try {

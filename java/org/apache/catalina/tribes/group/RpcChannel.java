@@ -50,6 +50,7 @@ public class RpcChannel implements ChannelListener {
     private byte[] rpcId;
     private int replyMessageOptions = 0;
 
+    //保存响应信息的Map
     private final ConcurrentMap<RpcCollectorKey, RpcCollector> responseMap = new ConcurrentHashMap<>();
 
     /**
@@ -93,10 +94,10 @@ public class RpcChannel implements ChannelListener {
         RpcCollector collector = new RpcCollector(key,rpcOptions,destination.length);
         try {
             synchronized (collector) {
-                if ( rpcOptions != NO_REPLY ) responseMap.put(key, collector);
+                if (rpcOptions != NO_REPLY) responseMap.put(key, collector);
                 RpcMessage rmsg = new RpcMessage(rpcId, key.id, message);
                 channel.send(destination, rmsg, sendOptions);
-                if ( rpcOptions != NO_REPLY ) collector.wait(timeout);
+                if (rpcOptions != NO_REPLY) collector.wait(timeout);
             }
         } catch ( InterruptedException ix ) {
             Thread.currentThread().interrupt();

@@ -61,9 +61,7 @@ public class StandardManager extends ManagerBase {
 
     // ---------------------------------------------------- Security Classes
 
-    private class PrivilegedDoLoad
-        implements PrivilegedExceptionAction<Void> {
-
+    private class PrivilegedDoLoad implements PrivilegedExceptionAction<Void> {
         PrivilegedDoLoad() {
             // NOOP
         }
@@ -75,9 +73,7 @@ public class StandardManager extends ManagerBase {
         }
     }
 
-    private class PrivilegedDoUnload
-        implements PrivilegedExceptionAction<Void> {
-
+    private class PrivilegedDoUnload implements PrivilegedExceptionAction<Void> {
         PrivilegedDoUnload() {
             // NOOP
         }
@@ -87,7 +83,6 @@ public class StandardManager extends ManagerBase {
             doUnload();
             return null;
         }
-
     }
 
 
@@ -97,7 +92,6 @@ public class StandardManager extends ManagerBase {
      * The descriptive name of this Manager implementation (for logging).
      */
     protected static final String name = "StandardManager";
-
 
     /**
      * Path name of the disk file in which active sessions are saved
@@ -111,12 +105,10 @@ public class StandardManager extends ManagerBase {
 
 
     // ------------------------------------------------------------- Properties
-
     @Override
     public String getName() {
         return name;
     }
-
 
     /**
      * @return The session persistence pathname, if any.
@@ -191,8 +183,7 @@ public class StandardManager extends ManagerBase {
         Loader loader = null;
         ClassLoader classLoader = null;
         Log logger = null;
-        try (FileInputStream fis = new FileInputStream(file.getAbsolutePath());
-                BufferedInputStream bis = new BufferedInputStream(fis)) {
+        try (FileInputStream fis = new FileInputStream(file.getAbsolutePath()); BufferedInputStream bis = new BufferedInputStream(fis)) {
             Context c = getContext();
             loader = c.getLoader();
             logger = c.getLogger();
@@ -343,9 +334,7 @@ public class StandardManager extends ManagerBase {
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
-
         super.startInternal();
-
         // Load unloaded sessions, if any
         try {
             load();
@@ -353,7 +342,6 @@ public class StandardManager extends ManagerBase {
             ExceptionUtils.handleThrowable(t);
             log.error(sm.getString("standardManager.managerLoad"), t);
         }
-
         setState(LifecycleState.STARTING);
     }
 
@@ -367,11 +355,9 @@ public class StandardManager extends ManagerBase {
      */
     @Override
     protected synchronized void stopInternal() throws LifecycleException {
-
         if (log.isDebugEnabled()) {
             log.debug("Stopping");
         }
-
         setState(LifecycleState.STOPPING);
 
         // Write out sessions

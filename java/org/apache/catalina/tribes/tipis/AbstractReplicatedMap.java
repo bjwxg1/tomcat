@@ -52,8 +52,7 @@ import org.apache.juli.logging.LogFactory;
  * @param <K> The type of Key
  * @param <V> The type of Value
  */
-public abstract class AbstractReplicatedMap<K,V>
-        implements Map<K,V>, Serializable, RpcCallback, ChannelListener,
+public abstract class AbstractReplicatedMap<K,V> implements Map<K,V>, Serializable, RpcCallback, ChannelListener,
         MembershipListener, Heartbeat {
 
     private static final long serialVersionUID = 1L;

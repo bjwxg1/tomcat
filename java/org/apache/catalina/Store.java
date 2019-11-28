@@ -90,8 +90,7 @@ public interface Store {
      * @exception IOException if an input/output error occurs
      * @return the loaded Session instance
      */
-    public Session load(String id)
-        throws ClassNotFoundException, IOException;
+    public Session load(String id) throws ClassNotFoundException, IOException;
 
 
     /**
@@ -131,6 +130,4 @@ public interface Store {
      * @exception IOException if an input/output error occurs
      */
     public void save(Session session) throws IOException;
-
-
 }
